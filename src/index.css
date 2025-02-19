@@ -1,0 +1,71 @@
+body {
+  background-color: black;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Weather Section */
+.weather {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.weather-image {
+  width: 150px;
+  height: auto;
+  margin: 10px auto;
+  display: block;
+}
+
+.weather-description {
+  font-size: 16px;
+  color: #ccc;
+}
+
+/* Feature Grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin: 40px auto;
+  max-width: 600px;
+}
+
+/* Feature Box */
+.feature-box {
+  border: 2px solid red;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #111;
+  color: white;
+}
+
+.feature-box:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+/* Recent Catches Section */
+.recent-catches h2 {
+  color: red;
+}
+
+.catches-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.catch-item {
+  border: 2px solid red;
+  padding: 10px;
+  border-radius: 5px;
+}
