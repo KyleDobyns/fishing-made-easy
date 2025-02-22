@@ -1,0 +1,128 @@
+.weather-container {
+  width: 100%; /* Full width */
+  max-width: 400px; /* Cap for larger screens, but let it shrink */
+  padding: 15px;
+  border-radius: 15px;
+  color: white;
+  text-align: center;
+  margin: 0 auto; /* Center horizontally */
+  box-sizing: border-box; /* Include padding in width calculation */
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Dynamic Weather Backgrounds */
+.sunny {
+  background: linear-gradient(to bottom, #ffcc33, #ff9900);
+}
+
+.cloudy {
+  background: linear-gradient(to bottom, #888888, #666666);
+}
+
+.rainy {
+  background: linear-gradient(to bottom, #4a90e2, #2a5f99);
+}
+
+.snowy {
+  background: linear-gradient(to bottom, #dfe9f3, #a8c0d9);
+}
+
+.default-weather {
+  background: linear-gradient(to bottom, #3a3a3a, #1a1a1a);
+}
+
+/* Weather Information */
+.weather-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.weather-icon {
+  width: 60px;
+  height: 60px;
+}
+
+.temperature {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+/* Search Box */
+.search-container {
+  margin-top: 10px;
+  display: flex; /* Use flexbox for better control */
+  justify-content: center; /* Center the input and button */
+  align-items: center; /* Align vertically */
+  flex-wrap: wrap; /* Allow wrapping on very narrow screens */
+  gap: 5px; /* Reduced gap between input and button */
+}
+
+.search-container input {
+  padding: 6px;
+  border-radius: 5px;
+  border: none;
+  width: 60%; /* Reduced from 70% for tighter fit */
+  max-width: 180px; /* Slightly smaller max-width */
+  margin-right: 0; /* Remove margin to avoid pushing off-screen */
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.search-container button {
+  margin-left: 0; /* Remove margin to avoid pushing off-screen */
+  padding: 6px 8px; /* Slightly smaller padding */
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap; /* Prevent button text wrapping */
+  min-width: 60px; /* Ensure button has a minimum width */
+}
+
+.search-container button:hover {
+  background-color: darkred;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  .weather-container {
+    padding: 10px;
+  }
+
+  .weather-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .temperature {
+    font-size: 30px;
+  }
+
+  .search-container {
+    flex-direction: column; /* Stack input and button vertically on small screens */
+    gap: 5px;
+  }
+
+  .search-container input {
+    width: 90%; /* Wider on mobile for better usability */
+    max-width: 100%; /* Remove max-width to fit screen */
+  }
+
+  .search-container button {
+    width: 90%; /* Match input width */
+    max-width: 100%; /* Remove max-width to fit screen */
+    min-width: auto; /* Reset min-width for stacking */
+  }
+}
+
+@media (max-width: 375px) {
+  .search-container input {
+    width: 95%; /* Even wider on tiny screens */
+  }
+
+  .search-container button {
+    width: 95%; /* Match input width */
+  }
+}
