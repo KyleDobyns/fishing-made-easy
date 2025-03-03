@@ -1,108 +1,142 @@
 .catch-log-container {
-    padding: 20px;
-    text-align: center;
-    background-color: black;
-    color: white;
-  }
-  
-  .catch-log-title,
-  .recent-catches-title {
-    color: red;
-    margin-bottom: 20px;
-  }
-  
+  padding: 20px;
+  text-align: center;
+  background-color: black;
+  color: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.catch-log-title,
+.recent-catches-title {
+  color: red;
+  margin-bottom: 20px;
+}
+
+.catch-log-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.form-group {
+  width: 100%;
+  max-width: 300px;
+}
+
+.catch-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid white;
+  background-color: #222;
+  color: white;
+  margin-left: 10px;
+}
+
+.file-input {
+  margin-left: 0;
+  margin-top: 5px;
+}
+
+.image-preview {
+  width: 100%;
+  max-width: 300px;
+  margin-top: 10px;
+}
+
+.image-preview img {
+  border-radius: 5px;
+  border: 1px solid white;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.catch-log-button {
+  padding: 10px 20px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.catch-log-button:hover {
+  background-color: darkred;
+}
+
+.recent-catches-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.catch-item {
+  padding: 8px;
+  border: 1px solid white;
+  border-radius: 5px;
+  max-width: 120px;
+  background-color: #222;
+  width: 100%; /* Full width on mobile */
+  box-sizing: border-box;
+}
+
+.catch-item img {
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
+.no-catches {
+  color: #888;
+}
+
+.back-link {
+  display: block;
+  margin-top: 20px;
+  color: red;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #ff3333;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
   .catch-log-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  .form-group {
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .catch-input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid white;
-    background-color: #222;
-    color: white;
-    margin-left: 10px;
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 10px;
-  }
-  
-  .catch-log-button {
-    padding: 10px 20px;
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .catch-log-button:hover {
-    background-color: darkred;
-  }
-  
-  .recent-catches-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     gap: 10px;
-    margin-top: 20px;
+    max-width: 100%;
   }
-  
+
+  .catch-input,
+  .file-input {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .image-preview {
+    max-width: 100%;
+  }
+
+  .catch-log-button {
+    width: 90%;
+    max-width: 200px;
+  }
+
   .catch-item {
-    padding: 8px;
-    border: 1px solid white;
-    border-radius: 5px;
-    max-width: 120px;
+    flex: 1 1 100%;
+    max-width: 100%;
   }
-  
-  .no-catches {
-    color: #888;
-  }
-  
-  .back-link {
-    display: block;
-    margin-top: 20px;
-    color: red;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  
-  .back-link:hover {
-    color: #ff3333;
-  }
-  
-  /* Mobile Adjustments */
-  @media (max-width: 600px) {
-    .catch-log-form {
-      gap: 10px;
-    }
-  
-    .catch-input {
-      margin-left: 0;
-      width: 90%;
-    }
-  
-    .catch-log-button {
-      width: 90%;
-      max-width: 200px;
-    }
-  
-    .catch-item {
-      flex: 1 1 100%;
-      max-width: 100%;
-    }
-  }
+}

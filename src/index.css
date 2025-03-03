@@ -37,6 +37,8 @@ body {
   text-align: center;
   margin: 0;
   padding: 0;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding in width */
 }
 
 /* Map Container */
@@ -44,12 +46,12 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%; /* Full width */
-  max-width: 600px; /* Cap for larger screens */
-  height: 300px; /* Reduced height for mobile */
+  width: 100%;
+  max-width: 100%; /* Remove cap for mobile */
+  height: 300px; /* Default height, overridden in mobile media queries */
   border-radius: 10px;
   overflow: hidden;
-  margin: 0 auto; /* Center */
+  margin: 0 auto;
 }
 
 /* Fix for Leaflet custom marker */
@@ -61,7 +63,7 @@ body {
 /* Mobile Adjustments */
 @media (max-width: 600px) {
   .map-container {
-    height: 250px; /* Even smaller for phone */
-    max-width: 100%; /* Full width */
+    height: 200px; /* Smaller on mobile */
+    max-width: none; /* Full width */
   }
 }

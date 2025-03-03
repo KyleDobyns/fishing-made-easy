@@ -4,12 +4,26 @@ const CatchContext = createContext();
 
 export const CatchProvider = ({ children }) => {
   const [catches, setCatches] = useState(() => {
+    // Load catches from localStorage on mount
     const savedCatches = localStorage.getItem("recentCatches");
-    return savedCatches ? JSON.parse(savedCatches) : [];
+    if (savedCatches) {
+      const parsedCatches = JSON.parse(savedCatches);
+      // Use base64 directly for images
+      return parsedCatches.map((catchItem) => ({
+        ...catchItem,
+        image: catchItem.image ? `data:image/png;base64,${catchItem.image}` : null, // Reconstruct base64 URL
+      }));
+    }
+    return [];
   });
 
   useEffect(() => {
-    localStorage.setItem("recentCatches", JSON.stringify(catches));
+    // Save catches to localStorage, storing image as base64 (without the "data:image/png;base64," prefix)
+    const serializedCatches = catches.map((catchItem) => ({
+      ...catchItem,
+      image: catchItem.image ? catchItem.image.split(',')[1] : null, // Store only base64 data
+    }));
+    localStorage.setItem("recentCatches", JSON.stringify(serializedCatches));
   }, [catches]);
 
   return (
@@ -19,4 +33,4 @@ export const CatchProvider = ({ children }) => {
   );
 };
 
-export { CatchContext }; // Explicitly export CatchContext as a named export
+export { CatchContext };
