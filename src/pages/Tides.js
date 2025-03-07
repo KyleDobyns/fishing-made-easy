@@ -23,7 +23,7 @@ const Tides = () => {
   const [position, setPosition] = useState(null);
   const [error, setError] = useState("");
   const [timeFrame, setTimeFrame] = useState("7days"); // "1day" or "7days"
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]); // Default to today
   const stations = [
     { id: "9447130", name: "Seattle, WA", lat: 47.6025, lon: -122.3340 },
     { id: "9446484", name: "Tacoma, WA", lat: 47.2675, lon: -122.4110 },
@@ -31,17 +31,18 @@ const Tides = () => {
     { id: "9444900", name: "Port Townsend, WA", lat: 48.1170, lon: -122.7610 },
   ];
 
-  useEffect(() => {
+  const getUserLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setPosition([latitude, longitude]);
-          fetchTidesForStation(selectedStation, timeFrame, selectedDate);
+          fetchTidesForStation(selectedStation, timeFrame, selectedDate); // Update tides with new location
         },
-        (error) => {
-          setError(`Geolocation error: ${error.message}`);
-          fetchTidesForStation(selectedStation, timeFrame, selectedDate); // Fallback to selected station
+        (err) => {
+          setError(`Geolocation error: ${err.message}`);
+          setPosition([47.6025, -122.3340]); // Fallback to Seattle
+          fetchTidesForStation(selectedStation, timeFrame, selectedDate); // Continue with fallback
         },
         {
           enableHighAccuracy: true,
@@ -51,20 +52,25 @@ const Tides = () => {
       );
     } else {
       setError("Geolocation is not supported by this browser.");
-      fetchTidesForStation(selectedStation, timeFrame, selectedDate); // Default to selected station
+      setPosition([47.6025, -122.3340]); // Fallback to Seattle
+      fetchTidesForStation(selectedStation, timeFrame, selectedDate); // Continue with fallback
     }
+  };
+
+  useEffect(() => {
+    getUserLocation(); // Initial attempt on mount
   }, [selectedStation, timeFrame, selectedDate]);
 
   const fetchTidesForStation = async (stationId, timeFrame, date) => {
     const today = new Date(date);
-    const startDate = today.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+    const startDate = today.toISOString().split("T")[0].replace(/-/g, ""); // YYYYMMDD
     let endDate;
 
     if (timeFrame === "7days") {
       endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
         .toISOString()
-        .split('T')[0]
-        .replace(/-/g, ''); // 7 days later
+        .split("T")[0]
+        .replace(/-/g, ""); // 7 days later
     } else {
       endDate = startDate; // Single day
     }
@@ -94,7 +100,6 @@ const Tides = () => {
     setSelectedDate(e.target.value);
   };
 
-  // Callback from MapView when a station marker is clicked
   const onMarkerClick = (stationId) => {
     setSelectedStation(stationId);
   };
@@ -102,7 +107,6 @@ const Tides = () => {
   if (error) return <p style={{ color: "red", padding: "20px" }}>{error}</p>;
   if (!tides) return <p>Loading tide data...</p>;
 
-  // Prepare data for Chart.js
   const labels = tides.map((tide) => new Date(tide.t).toLocaleString());
   const dataValues = tides.map((tide) => parseFloat(tide.v)); // Tide heights in feet
   const chartData = {
@@ -172,11 +176,14 @@ const Tides = () => {
   return (
     <div className="tides-container">
       <h1 className="tides-title">Tide Information</h1>
+      <button onClick={getUserLocation} style={{ marginBottom: "10px" }}>
+        Use My Location
+      </button>
       <MapView
-        position={position || [47.6027, -122.3331]} // Use geolocation or default to Seattle
-        stations={stations} // Pass tide stations to MapView
-        onMarkerClick={onMarkerClick} // Callback for station selection
-        selectedStation={selectedStation} // Highlight the selected station
+        position={position || [47.6025, -122.3340]} // Use geolocation or default to Seattle
+        stations={stations}
+        onMarkerClick={onMarkerClick}
+        selectedStation={selectedStation}
       />
       <div className="tides-controls">
         <div className="station-selector">
@@ -213,7 +220,7 @@ const Tides = () => {
             value={selectedDate}
             onChange={handleDateChange}
             className="date-input"
-            min={new Date().toISOString().split('T')[0]} // Prevent past dates
+            min={new Date().toISOString().split("T")[0]}
           />
         </div>
       </div>

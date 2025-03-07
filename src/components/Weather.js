@@ -80,6 +80,7 @@ const Weather = () => {
   const icon = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
 
   const getWeatherBackground = () => {
+    console.log("Condition:", condition); // Debug
     if (condition.includes("rain")) return "rainy";
     if (condition.includes("cloud")) return "cloudy";
     if (condition.includes("snow")) return "snowy";
@@ -88,16 +89,23 @@ const Weather = () => {
   };
 
   return (
-    <div className={`weather-container ${getWeatherBackground()}`}>
-      <h2>{weatherData.name}</h2>
-      <div className="weather-info">
-        <img src={icon} alt={condition} className="weather-icon" />
-        <div>
-          <p className="temperature">{Math.round(temp)}°F</p>
-          <p>{condition}</p>
-        </div>
-      </div>
-      <p>Wind: {windSpeed} mph | Humidity: {humidity}%</p>
+    <div className={`weather-container ${weatherData ? getWeatherBackground() : "default-weather"}`}>
+      <button onClick={getLocation} style={{ marginBottom: "10px" }}>
+        Use My Location
+      </button>
+      {weatherData && (
+        <>
+          <h2>{weatherData.name}</h2>
+          <div className="weather-info">
+            <img src={icon} alt={condition} className="weather-icon" />
+            <div>
+              <p className="temperature">{Math.round(temp)}°F</p>
+              <p>{condition}</p>
+            </div>
+          </div>
+          <p>Wind: {windSpeed} mph | Humidity: {humidity}%</p>
+        </>
+      )}
       <div className="search-container">
         <input
           type="text"

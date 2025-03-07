@@ -1,128 +1,116 @@
 .weather-container {
-  width: 100%; /* Full width */
-  max-width: 400px; /* Cap for larger screens, but let it shrink */
-  padding: 15px;
-  border-radius: 15px;
+  background-color: #1a1a1a; /* Default dark background */
   color: white;
+  padding: 20px;
+  border-radius: 8px;
   text-align: center;
-  margin: 0 auto; /* Center horizontally */
-  box-sizing: border-box; /* Include padding in width calculation */
-  overflow: hidden; /* Prevent overflow */
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  position: relative;
+  transition: background 0.3s ease;
 }
 
-/* Dynamic Weather Backgrounds */
-.sunny {
-  background: linear-gradient(to bottom, #ffcc33, #ff9900);
+.weather-container.rainy {
+  background: linear-gradient(135deg, #4a6a8a, #2e4457);
 }
 
-.cloudy {
-  background: linear-gradient(to bottom, #888888, #666666);
+.weather-container.cloudy {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
 }
 
-.rainy {
-  background: linear-gradient(to bottom, #4a90e2, #2a5f99);
+.weather-container.snowy {
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
 }
 
-.snowy {
-  background: linear-gradient(to bottom, #dfe9f3, #a8c0d9);
+.weather-container.sunny {
+  background: linear-gradient(135deg, #facc15, #f97316); /* Yellow-orange for clear sky */
 }
 
-.default-weather {
-  background: linear-gradient(to bottom, #3a3a3a, #1a1a1a);
+.weather-container.default-weather {
+  background: linear-gradient(135deg, #1f2937, #111827); /* Dark gradient as fallback */
 }
 
-/* Weather Information */
 .weather-info {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
 .weather-icon {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
 }
 
 .temperature {
-  font-size: 36px;
+  font-size: 2.5rem;
   font-weight: bold;
+  margin: 0;
 }
 
-/* Search Box */
 .search-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
   margin-top: 10px;
-  display: flex; /* Use flexbox for better control */
-  justify-content: center; /* Center the input and button */
-  align-items: center; /* Align vertically */
-  flex-wrap: wrap; /* Allow wrapping on very narrow screens */
-  gap: 5px; /* Reduced gap between input and button */
 }
 
 .search-container input {
-  padding: 6px;
+  padding: 8px;
   border-radius: 5px;
-  border: none;
-  width: 60%; /* Reduced from 70% for tighter fit */
-  max-width: 180px; /* Slightly smaller max-width */
-  margin-right: 0; /* Remove margin to avoid pushing off-screen */
-  box-sizing: border-box; /* Include padding in width */
+  border: 1px solid white;
+  background-color: #222;
+  color: white;
+  width: 150px;
 }
 
 .search-container button {
-  margin-left: 0; /* Remove margin to avoid pushing off-screen */
-  padding: 6px 8px; /* Slightly smaller padding */
+  padding: 8px 16px;
   background-color: red;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  white-space: nowrap; /* Prevent button text wrapping */
-  min-width: 60px; /* Ensure button has a minimum width */
+  transition: background-color 0.3s ease;
 }
 
 .search-container button:hover {
   background-color: darkred;
 }
 
-/* Mobile Adjustments */
+/* Style for the Use My Location button */
+.weather-container button {
+  padding: 8px 16px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.weather-container button:hover {
+  background-color: #555;
+}
+
+/* Mobile adjustments */
 @media (max-width: 600px) {
   .weather-container {
-    padding: 10px;
-  }
-
-  .weather-icon {
-    width: 50px;
-    height: 50px;
+    padding: 15px;
   }
 
   .temperature {
-    font-size: 30px;
+    font-size: 2rem;
   }
 
-  .search-container {
-    flex-direction: column; /* Stack input and button vertically on small screens */
-    gap: 5px;
+  .weather-icon {
+    width: 40px;
+    height: 40px;
   }
 
   .search-container input {
-    width: 90%; /* Wider on mobile for better usability */
-    max-width: 100%; /* Remove max-width to fit screen */
-  }
-
-  .search-container button {
-    width: 90%; /* Match input width */
-    max-width: 100%; /* Remove max-width to fit screen */
-    min-width: auto; /* Reset min-width for stacking */
-  }
-}
-
-@media (max-width: 375px) {
-  .search-container input {
-    width: 95%; /* Even wider on tiny screens */
-  }
-
-  .search-container button {
-    width: 95%; /* Match input width */
+    width: 120px;
   }
 }

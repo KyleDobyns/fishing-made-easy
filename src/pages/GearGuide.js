@@ -117,11 +117,10 @@ const lakes = [
 
 const GearGuide = () => {
   const [selectedLake, setSelectedLake] = useState(lakes[0]); // Default to Lake Washington
-  const [position, setPosition] = useState(null); // User's current location
-  const [error, setError] = useState(""); // Geolocation error
+  const [position, setPosition] = useState(null);
+  const [error, setError] = useState("");
 
-  // Fetch user's location on mount
-  useEffect(() => {
+  const getUserLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -142,9 +141,12 @@ const GearGuide = () => {
       setError("Geolocation is not supported by this browser.");
       setPosition([47.6062, -122.2577]); // Fallback to Lake Washington
     }
+  };
+
+  useEffect(() => {
+    getUserLocation(); // Initial attempt
   }, []);
 
-  // Callback from MapViewForGear when a lake marker is clicked
   const onMarkerClick = (lakeId) => {
     const lake = lakes.find((l) => l.id === lakeId);
     if (lake) {
@@ -154,7 +156,6 @@ const GearGuide = () => {
     }
   };
 
-  // Get the default species recommendation for the selected lake
   const defaultSpecies = Object.keys(selectedLake.recommendations)[0] || "Not available";
   const recommendation = selectedLake.recommendations[defaultSpecies] || {
     rod: "Not available",
@@ -165,18 +166,18 @@ const GearGuide = () => {
   return (
     <div className="gear-guide-container">
       <h1 className="gear-guide-title">Gear Guide</h1>
-
       {error && <p style={{ color: "red" }}>{error}</p>}
-
+      <button onClick={getUserLocation} style={{ marginBottom: "10px" }}>
+        Use My Location
+      </button>
       <div className="gear-guide-map">
         <MapViewForGear
-          position={position} // Pass user's current location
-          lakes={lakes}
+          position={position}
+          lakes={lakes} // Pass lakes array to MapViewForGear
           onMarkerClick={onMarkerClick}
           selectedLake={selectedLake.id}
         />
       </div>
-
       <div className="recommended-setup">
         <h2>Recommended Setup for {selectedLake.name}</h2>
         <div className="setup-details">
@@ -185,7 +186,6 @@ const GearGuide = () => {
           <p><strong>Line</strong><br />{recommendation.line}</p>
         </div>
       </div>
-
       <div className="learn-more">
         <h2>Learn More</h2>
         <div className="learn-more-item">
@@ -203,7 +203,6 @@ const GearGuide = () => {
           <button className="guide-button">☰</button>
         </div>
       </div>
-
       <Link to="/" className="back-link">
         Back to Home
       </Link>
