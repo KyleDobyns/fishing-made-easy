@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import "./HomePage.css";
 import Weather from "../components/Weather";
-import MapView from "../components/MapView";
 import { CatchContext } from "../CatchContext";
 
 const HomePage = () => {
@@ -13,10 +12,6 @@ const HomePage = () => {
       <div className="weather-section">
         <Weather />
       </div>
-
-{/*       <div className="map-section">
-        <MapView />
-      </div> */}
 
       <div className="features">
         <Link to="/gear-guide" className="feature-card">Gear Guide</Link>
