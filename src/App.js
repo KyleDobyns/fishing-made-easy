@@ -1,14 +1,14 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { CatchProvider } from "./CatchContext"; // Import the provider
-import HomePage from "./HomePage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 import GearGuide from "./pages/GearGuide";
 import CatchLog from "./pages/CatchLog";
 import Tides from "./pages/Tides";
+import { CatchProvider } from "./CatchContext";
 
 function App() {
   return (
-    <CatchProvider> {/* Wrap the app with CatchProvider */}
+    <CatchProvider>
       <Router>
         <div>
           <Routes>
