@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import MapView from "../components/MapView";
+import { supabase } from "../supabase";
 import "./Tides.css";
 
 // Register Chart.js components
@@ -20,16 +21,24 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const Tides = () => {
   const [tides, setTides] = useState(null);
   const [selectedStation, setSelectedStation] = useState("9447130");
+  const [stations, setStations] = useState([]);
   const [position, setPosition] = useState(null);
   const [error, setError] = useState("");
   const [timeFrame, setTimeFrame] = useState("7days");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-  const stations = [
-    { id: "9447130", name: "Seattle, WA", lat: 47.6025, lon: -122.3340 },
-    { id: "9446484", name: "Tacoma, WA", lat: 47.2675, lon: -122.4110 },
-    { id: "9447659", name: "Everett, WA", lat: 47.9785, lon: -122.2085 },
-    { id: "9444900", name: "Port Townsend, WA", lat: 48.1170, lon: -122.7610 },
-  ];
+
+  useEffect(() => {
+    const fetchStations = async () => {
+      const { data, error } = await supabase.from('tide_stations').select('*');
+      if (error) {
+        setError("Failed to load tide stations. Please try again later.");
+        setStations([]);
+      } else {
+        setStations(data);
+      }
+    };
+    fetchStations();
+  }, []);
 
   const getUserLocation = useCallback(() => {
     if ("geolocation" in navigator) {
@@ -40,7 +49,7 @@ const Tides = () => {
           fetchTidesForStation(selectedStation, timeFrame, selectedDate);
         },
         (err) => {
-          setError(`Geolocation error: ${err.message}`);
+          setError("Unable to get your location. Using default location instead.");
           setPosition([47.6025, -122.3340]);
           fetchTidesForStation(selectedStation, timeFrame, selectedDate);
         },
@@ -51,42 +60,49 @@ const Tides = () => {
         }
       );
     } else {
-      setError("Geolocation is not supported by this browser.");
+      setError("Geolocation is not supported by your browser. Using default location.");
       setPosition([47.6025, -122.3340]);
       fetchTidesForStation(selectedStation, timeFrame, selectedDate);
     }
-  }, [selectedStation, timeFrame, selectedDate]); // Include dependencies for fetchTidesForStation
+  }, [selectedStation, timeFrame, selectedDate]);
 
   useEffect(() => {
     getUserLocation();
-  }, [getUserLocation]); // Include getUserLocation in the dependency array
+  }, [getUserLocation]);
 
-  const fetchTidesForStation = async (stationId, timeFrame, date) => {
-    const today = new Date(date);
-    const startDate = today.toISOString().split("T")[0].replace(/-/g, "");
-    let endDate;
+const fetchTidesForStation = async (stationId, timeFrame, date) => {
+  const today = new Date(date);
+  const startDate = today.toISOString().split("T")[0].replace(/-/g, "");
+  let endDate;
 
-    if (timeFrame === "7days") {
-      endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0]
-        .replace(/-/g, "");
-    } else {
-      endDate = startDate;
-    }
+  if (timeFrame === "7days") {
+    endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0]
+      .replace(/-/g, "");
+  } else {
+    endDate = startDate;
+  }
 
-    try {
-      const response = await fetch(
-        `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?begin_date=${startDate}&end_date=${endDate}&station=${stationId}&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&format=json`
-      );
-      if (!response.ok) throw new Error("Failed to fetch tide data");
-      const data = await response.json();
-      setTides(data.predictions || []);
-    } catch (error) {
-      setError(`Error fetching tides: ${error.message}`);
-      setTides(null);
-    }
-  };
+  try {
+    const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/swift-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer your-supabase-anon-key', // Replace with your anon key
+      },
+      body: JSON.stringify({ stationId, startDate, endDate }),
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch tide data');
+    const data = await response.json();
+    setTides(data || []);
+    setError("");
+  } catch (error) {
+    setError("Tide data unavailable. Please try again later or select a different station.");
+    setTides(null);
+  }
+};
 
   const handleStationChange = (e) => {
     setSelectedStation(e.target.value);
@@ -104,7 +120,7 @@ const Tides = () => {
     setSelectedStation(stationId);
   };
 
-  if (error) return <p style={{ color: "red", padding: "20px" }}>{error}</p>;
+  if (error) return <p className="error-message">{error}</p>;
   if (!tides) return <p>Loading tide data...</p>;
 
   const labels = tides.map((tide) => new Date(tide.t).toLocaleString());
@@ -176,7 +192,7 @@ const Tides = () => {
   return (
     <div className="tides-container">
       <h1 className="tides-title">Tide Information</h1>
-      <button onClick={getUserLocation} style={{ marginBottom: "10px" }}>
+      <button onClick={getUserLocation} className="location-button">
         Use My Location
       </button>
       <MapView

@@ -15,7 +15,7 @@
 div[ref="mapContainerRef"], #tide-map, .map-container {
   width: 100%;
   max-width: 100%; /* Remove cap for mobile */
-  height: 200px; /* Default height, smaller for mobile */
+  height: 400px; /* Default height, smaller for mobile */
   margin: 0 auto;
   border-radius: 5px; /* Smaller radius for mobile */
   overflow: hidden;
@@ -64,7 +64,7 @@ div[ref="mapContainerRef"], #tide-map, .map-container {
 .tide-chart {
   max-width: 100%;
   margin: 0 auto;
-  height: 200px; /* Smaller height for mobile */
+  height: 400px; /* Smaller height for mobile */
 }
 
 .tide-list {
@@ -111,11 +111,11 @@ div[ref="mapContainerRef"], #tide-map, .map-container {
   }
 
   div[ref="mapContainerRef"], #tide-map, .map-container {
-    height: 180px; /* Even smaller on very small screens */
+    height: 400px; /* Even smaller on very small screens */
   }
 
   .tide-chart {
-    height: 180px; /* Even smaller chart on very small screens */
+    height: 400px; /* Even smaller chart on very small screens */
   }
 
   .tide-item {

@@ -5,7 +5,7 @@ import "leaflet/dist/leaflet.css";
 
 // Custom icon for lake markers
 const lakeIcon = L.icon({
-  iconUrl: "/assets/wave.png",
+  iconUrl: "/assets/fishButton.png",
   iconSize: [40, 30],
   iconAnchor: [20, 15],
   popupAnchor: [0, -15],

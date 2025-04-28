@@ -1,151 +1,253 @@
-/* 
-.weather-section {
-  margin-bottom: 20px;
-}
-
-
-.map-section {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-
-.features {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.feature-card {
-  background-color: #222; 
+.homepage {
+  padding: 5px; /* Minimal padding for mobile */
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  background: black;
   color: white;
-  padding: 20px;
-  border-radius: 10px;
-  border: 1px solid red;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-family: 'Roboto', sans-serif; /* Clean, mobile-readable font */
 }
 
-.feature-card:hover {
-  background-color: rgba(255, 0, 0, 0.5);
-  transform: scale(1.05);
-}
-
-
-.recent-catches h2 {
-  color: red;
-}
-
-.recent-catches {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.catch {
-  padding: 10px;
-  border: 1px solid white;
-  border-radius: 5px;
-}
- */
-
- .homepage {
-  padding: 10px; /* Reduced padding for mobile */
-  width: 100%; /* Ensure full width */
-  box-sizing: border-box; /* Include padding in width */
+/* Subtle wave pattern for depth, optimized for mobile */
+.homepage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"%3E%3Cpath fill="%232a2a2a" fill-opacity="0.2" d="M0,128L48,117.3C96,107,192,85,288,90.7C384,96,480,128,576,144C672,160,768,160,864,149.3C960,139,1056,117,1152,106.7C1248,96,1344,96,1392,96L1440,96V320H1392C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320H0V128Z"%3E%3C/path%3E%3C/svg%3E');
+  background-repeat: repeat-x;
+  background-size: 200% 100%; /* Adjusted for mobile performance */
+  z-index: -1;
 }
 
 /* Weather Section */
 .weather-section {
-  margin-bottom: 15px; /* Reduced margin */
+  margin-bottom: 20px;
   width: 100%;
-  max-width: 100%; /* Remove cap for mobile */
+  max-width: calc(100% - 10px); /* Fit within viewport */
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 20px; /* Match Weather.css for height */
+  box-sizing: border-box;
+  animation: fadeIn 0.5s ease-out;
+  margin-left: 5px;
+  margin-right: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
 }
 
-/* Map Section */
-.map-section {
+/* Ensure weather content is contained */
+.weather-section h2,
+.weather-section .weather-info,
+.weather-section p,
+.weather-section .search-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+.weather-section .weather-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  flex-wrap: nowrap; /* Prevent wrapping to match inline style */
+}
+
+.weather-section .weather-info img {
+  max-width: 50px; /* Match Weather.js */
+  height: auto;
+}
+
+.weather-section .weather-info div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.weather-section .temperature {
+  font-size: 1.8rem; /* Match Weather.css */
+}
+
+.weather-section button {
+  margin-bottom: 10px; /* Match Weather.js */
+  width: 90%;
+  max-width: 200px; /* Match Weather.js */
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.weather-section .search-container {
   display: flex;
   justify-content: center;
-  margin-top: 15px; /* Reduced margin */
-  margin-bottom: 15px; /* Reduced margin */
+  gap: 5px;
   width: 100%;
-  max-width: 100%; /* Remove cap for mobile */
+  flex-wrap: nowrap; /* Force input and button on same line */
+}
+
+.weather-section .search-container input {
+  width: 60%;
+  max-width: 130px; /* Match Weather.js */
+  padding: 6px;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+}
+
+.weather-section .search-container button {
+  width: 25%;
+  max-width: 60px; /* Match Weather.js */
+  padding: 6px;
+  box-sizing: border-box;
+  font-size: 0.9rem;
 }
 
 /* Features Section */
 .features {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px; /* Reduced gap for mobile */
-  margin-top: 15px; /* Reduced margin */
+  flex-direction: column; /* Single column for mobile */
+  gap: 15px;
+  margin-top: 15px;
   width: 100%;
+  padding: 0;
 }
 
 .feature-card {
-  background-color: #222;
+  background: #2a2a2a;
   color: white;
-  padding: 12px; /* Reduced padding */
-  border-radius: 5px; /* Smaller radius */
-  border: 1px solid red;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  text-decoration: none;
-  flex: 1 1 100%; /* Full width on mobile */
-  max-width: 150px; /* Cap width on larger screens */
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid red;
   text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  touch-action: manipulation; /* Improve touch responsiveness */
 }
 
-.feature-card:hover {
-  background-color: rgba(255, 0, 0, 0.5);
-  transform: scale(1.05);
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.1) 0%, transparent 50%);
+  animation: pulse 3s infinite ease-in-out;
+  z-index: 0;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1); opacity: 0; }
+  100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+.feature-card span {
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card:active {
+  transform: scale(0.98); /* Touch feedback */
+  background: #333; /* Slight darken on tap */
 }
 
 /* Recent Catches Section */
 .recent-catches h2 {
   color: red;
-  margin-top: 15px; /* Reduced margin */
+  margin-top: 15px;
+  font-size: 1.3rem;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  animation: bounce 0.8s infinite alternate;
 }
 
 .recent-catches {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px; /* Reduced gap */
-  margin-top: 10px; /* Reduced margin */
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
   width: 100%;
+  padding: 0;
 }
 
 .catch {
-  padding: 6px; /* Reduced padding */
-  border: 1px solid white;
-  border-radius: 5px; /* Smaller radius */
-  flex: 1 1 100%; /* Full width on mobile */
-  max-width: 120px; /* Cap width on larger screens */
+  padding: 15px;
+  border: 2px solid red;
+  border-radius: 12px;
+  background: black;
+  width: 100%;
+  box-sizing: border-box;
+  animation: scaleUp 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Mobile Adjustments (enhance for screens < 600px) */
+.catch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent, rgba(255, 0, 0, 0.05), transparent);
+  animation: shimmer 2s infinite linear;
+  z-index: 0;
+}
+
+.catch img {
+  border-radius: 10px;
+  width: 100%; /* Ensure full width within container */
+  height: auto; /* Preserve aspect ratio */
+  object-fit: contain; /* Prevent stretching, maintain quality */
+  position: relative;
+  z-index: 1;
+  image-rendering: -webkit-optimize-contrast; /* Improve sharpness on WebKit */
+}
+
+.catch:active img {
+  transform: scale(1.05); /* Touch zoom */
+}
+
+/* Mobile Adjustments (optimized for < 600px) */
 @media (max-width: 600px) {
+  .homepage {
+    padding: 5px;
+  }
+  .weather-section {
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .map-section {
+    padding: 10px;
+    border-radius: 10px;
+  }
   .features {
-    flex-direction: column; /* Stack vertically */
-    gap: 8px; /* Even smaller gap */
+    gap: 10px;
   }
-
   .feature-card {
-    flex: 1 1 100%; /* Full width */
-    max-width: none;
+    font-size: 1rem;
+    padding: 12px;
+    border-radius: 10px;
   }
-
-  .recent-catches {
-    flex-direction: column; /* Stack vertically */
-    gap: 6px; /* Even smaller gap */
+  .recent-catches h2 {
+    font-size: 1.1rem;
   }
-
   .catch {
-    flex: 1 1 100%; /* Full width */
-    max-width: none;
+    padding: 10px;
+    border-radius: 10px;
   }
 }

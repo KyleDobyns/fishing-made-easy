@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "chart.js": "^4.4.8",
     "cra-template": "1.2.0",
     "leaflet": "^1.9.4",
@@ -16,11 +17,11 @@
     "react-scripts": "5.0.1"
   },
   "devDependencies": {
-    "kill-port": "^2.0.1" 
+    "kill-port": "^2.0.1"
   },
   "scripts": {
-    "start": "kill-port 3000 && react-scripts start", 
-    "stop": "kill-port 3000", 
+    "start": "kill-port 3000 && react-scripts start",
+    "stop": "kill-port 3000",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

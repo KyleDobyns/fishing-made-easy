@@ -23,11 +23,9 @@ const Weather = () => {
 
   const getLocation = useCallback(() => {
     if ("geolocation" in navigator) {
-      console.log("Requesting geolocation for Weather...");
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          console.log("Weather geolocation success:", latitude, longitude);
           fetchWeather(
             `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=imperial&appid=${API_KEY}`
           );
@@ -35,14 +33,14 @@ const Weather = () => {
         (error) => {
           console.error("Geolocation error:", error.message, error.code);
           if (error.code !== 1 && loading) {
-            setTimeout(getLocation, 2000); // Retry after 2 seconds
+            setTimeout(getLocation, 2000);
           } else {
             setLoading(false);
           }
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 15000,
           maximumAge: 0,
         }
       );
@@ -50,15 +48,15 @@ const Weather = () => {
       console.error("Geolocation not supported.");
       setLoading(false);
     }
-  }, [loading]); // Dependencies: loading affects the retry logic
+  }, [loading]);
 
   useEffect(() => {
     let mounted = true;
     if (mounted) getLocation();
     return () => {
-      mounted = false; // Cleanup to prevent double calls
+      mounted = false;
     };
-  }, [getLocation]); // Depends on getLocation
+  }, [getLocation]);
 
   const handleInputChange = (e) => setLocation(e.target.value);
 
@@ -72,7 +70,12 @@ const Weather = () => {
   };
 
   if (loading) return <p>Loading weather...</p>;
-  if (!weatherData) return <p>Unable to load weather data. Check location permissions.</p>;
+  if (!weatherData) return (
+    <div className="weather-container default-weather">
+      <button onClick={() => getLocation()}>Use My Location</button>
+      <p>Unable to load weather data. Check location permissions.</p>
+    </div>
+  );
 
   const { temp, humidity } = weatherData.main;
   const windSpeed = weatherData.wind.speed;
@@ -80,7 +83,6 @@ const Weather = () => {
   const icon = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
 
   const getWeatherBackground = () => {
-    console.log("Condition:", condition); // Debug
     if (condition.includes("rain")) return "rainy";
     if (condition.includes("cloud")) return "cloudy";
     if (condition.includes("snow")) return "snowy";
@@ -89,31 +91,30 @@ const Weather = () => {
   };
 
   return (
-    <div className={`weather-container ${weatherData ? getWeatherBackground() : "default-weather"}`}>
-      <button onClick={getLocation} style={{ marginBottom: "10px" }}>
+    <div className={`weather-container ${getWeatherBackground()}`}>
+      <button onClick={() => getLocation()} style={{ marginBottom: "10px", width: "90%", maxWidth: "200px", padding: "8px", boxSizing: "border-box" }}>
         Use My Location
       </button>
-      {weatherData && (
-        <>
-          <h2>{weatherData.name}</h2>
-          <div className="weather-info">
-            <img src={icon} alt={condition} className="weather-icon" />
-            <div>
-              <p className="temperature">{Math.round(temp)}°F</p>
-              <p>{condition}</p>
-            </div>
-          </div>
-          <p>Wind: {windSpeed} mph | Humidity: {humidity}%</p>
-        </>
-      )}
-      <div className="search-container">
+      <h2 style={{ margin: "0", width: "100%", textAlign: "center" }}>{weatherData.name}</h2>
+      <div className="weather-info" style={{ width: "100%", textAlign: "center" }}>
+        <img src={icon} alt={condition} className="weather-icon" style={{ maxWidth: "50px", height: "auto" }} />
+        <div>
+          <p className="temperature" style={{ margin: "5px 0" }}>{Math.round(temp)}°F</p>
+          <p style={{ margin: "5px 0" }}>{condition}</p>
+        </div>
+      </div>
+      <p style={{ margin: "5px 0", width: "100%", textAlign: "center" }}>Wind: {windSpeed} mph | Humidity: {humidity}%</p>
+      <div className="search-container" style={{ width: "100%", justifyContent: "center", gap: "5px", flexWrap: "wrap" }}>
         <input
           type="text"
           placeholder="Enter city name"
           value={location}
           onChange={handleInputChange}
+          style={{ width: "60%", maxWidth: "130px", padding: "6px", boxSizing: "border-box" }}
         />
-        <button onClick={handleSearch}>Search</button>
+        <button onClick={handleSearch} style={{ width: "25%", maxWidth: "60px", padding: "6px", boxSizing: "border-box" }}>
+          Search
+        </button>
       </div>
     </div>
   );
