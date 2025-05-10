@@ -1,121 +1,153 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { supabaseAnonKey } from "../supabase";
 import "./Weather.css";
 
 const Weather = () => {
-  const [weatherData, setWeatherData] = useState(null);
+  const [forecast, setForecast] = useState([]);
+  const [position, setPosition] = useState(null);
   const [location, setLocation] = useState("");
-  const [loading, setLoading] = useState(true);
-  const API_KEY = "0ab502f4b9326ebdd029abda14396584";
+  const [error, setError] = useState("");
+  const [backgroundClass, setBackgroundClass] = useState("default-weather");
 
-  const fetchWeather = (url) => {
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data && data.main) setWeatherData(data);
-        else console.error("Invalid weather data:", data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Fetch error:", error);
-        setLoading(false);
-      });
-  };
-
-  const getLocation = useCallback(() => {
+  const getUserLocation = () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          fetchWeather(
-            `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=imperial&appid=${API_KEY}`
-          );
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setPosition([latitude, longitude]);
         },
-        (error) => {
-          console.error("Geolocation error:", error.message, error.code);
-          if (error.code !== 1 && loading) {
-            setTimeout(getLocation, 2000);
-          } else {
-            setLoading(false);
-          }
+        (err) => {
+          setError(`Geolocation error: ${err.message}. Using default location (Seattle).`);
+          setPosition([47.6062, -122.2577]); // Fallback to Seattle
         },
         {
           enableHighAccuracy: true,
-          timeout: 15000,
+          timeout: 10000,
           maximumAge: 0,
         }
       );
     } else {
-      console.error("Geolocation not supported.");
-      setLoading(false);
+      setError("Geolocation is not supported by this browser. Using default location (Seattle).");
+      setPosition([47.6062, -122.2577]); // Fallback to Seattle
     }
-  }, [loading]);
+  };
 
   useEffect(() => {
-    let mounted = true;
-    if (mounted) getLocation();
-    return () => {
-      mounted = false;
+    getUserLocation();
+  }, []);
+
+  useEffect(() => {
+    if (!position) return;
+
+    const fetchWeather = async () => {
+      try {
+        const [lat, lon] = position;
+        const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/super-worker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ lat, lon, location: "User Location" }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+
+        const data = await response.json();
+        setForecast(data.forecast || []);
+
+        // Set background class based on the first day's weather condition
+        const condition = data.forecast[0]?.weather_description || "";
+        if (condition.includes("rain")) setBackgroundClass("rainy");
+        else if (condition.includes("cloud")) setBackgroundClass("cloudy");
+        else if (condition.includes("snow")) setBackgroundClass("snowy");
+        else if (condition.includes("clear")) setBackgroundClass("sunny");
+        else setBackgroundClass("default-weather");
+
+        setError("");
+      } catch (error) {
+        setError("Weather data unavailable. Please try again later.");
+        setForecast([]);
+      }
     };
-  }, [getLocation]);
+
+    fetchWeather();
+  }, [position]);
 
   const handleInputChange = (e) => setLocation(e.target.value);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (location.trim()) {
-      setLoading(true);
-      fetchWeather(
-        `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=imperial&appid=${API_KEY}`
-      );
+      try {
+        const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/super-worker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ location: location.trim() }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data for city');
+        }
+
+        const data = await response.json();
+        setForecast(data.forecast || []);
+
+        const condition = data.forecast[0]?.weather_description || "";
+        if (condition.includes("rain")) setBackgroundClass("rainy");
+        else if (condition.includes("cloud")) setBackgroundClass("cloudy");
+        else if (condition.includes("snow")) setBackgroundClass("snowy");
+        else if (condition.includes("clear")) setBackgroundClass("sunny");
+        else setBackgroundClass("default-weather");
+
+        setError("");
+      } catch (error) {
+        setError("Unable to fetch weather data for this city. Please try again.");
+        setForecast([]);
+      }
     }
   };
 
-  if (loading) return <p>Loading weather...</p>;
-  if (!weatherData) return (
-    <div className="weather-container default-weather">
-      <button onClick={() => getLocation()}>Use My Location</button>
-      <p>Unable to load weather data. Check location permissions.</p>
-    </div>
-  );
-
-  const { temp, humidity } = weatherData.main;
-  const windSpeed = weatherData.wind.speed;
-  const condition = weatherData.weather[0].description;
-  const icon = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
-
-  const getWeatherBackground = () => {
-    if (condition.includes("rain")) return "rainy";
-    if (condition.includes("cloud")) return "cloudy";
-    if (condition.includes("snow")) return "snowy";
-    if (condition.includes("clear")) return "sunny";
-    return "default-weather";
-  };
+  if (error) return <p className="error-message">{error}</p>;
+  if (forecast.length === 0) return <p>Loading forecast data...</p>;
 
   return (
-    <div className={`weather-container ${getWeatherBackground()}`}>
-      <button onClick={() => getLocation()} style={{ marginBottom: "10px", width: "90%", maxWidth: "200px", padding: "8px", boxSizing: "border-box" }}>
+    <div className={`weather-container ${backgroundClass}`}>
+      <h1 className="weather-title">5-Day Weather Forecast</h1>
+      <button onClick={getUserLocation} className="location-button">
         Use My Location
       </button>
-      <h2 style={{ margin: "0", width: "100%", textAlign: "center" }}>{weatherData.name}</h2>
-      <div className="weather-info" style={{ width: "100%", textAlign: "center" }}>
-        <img src={icon} alt={condition} className="weather-icon" style={{ maxWidth: "50px", height: "auto" }} />
-        <div>
-          <p className="temperature" style={{ margin: "5px 0" }}>{Math.round(temp)}°F</p>
-          <p style={{ margin: "5px 0" }}>{condition}</p>
-        </div>
+      <div className="forecast">
+        {forecast.length > 0 ? (
+          <div className="forecast-list">
+            {forecast.map((day, index) => (
+              <div key={index} className="forecast-item">
+                <p><strong>{new Date(day.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}:</strong></p>
+                <p>{day.avg_temperature}°F, {day.weather_description}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No forecast data available.</p>
+        )}
       </div>
-      <p style={{ margin: "5px 0", width: "100%", textAlign: "center" }}>Wind: {windSpeed} mph | Humidity: {humidity}%</p>
-      <div className="search-container" style={{ width: "100%", justifyContent: "center", gap: "5px", flexWrap: "wrap" }}>
+      <div className="search-container">
         <input
           type="text"
           placeholder="Enter city name"
           value={location}
           onChange={handleInputChange}
-          style={{ width: "60%", maxWidth: "130px", padding: "6px", boxSizing: "border-box" }}
         />
-        <button onClick={handleSearch} style={{ width: "25%", maxWidth: "60px", padding: "6px", boxSizing: "border-box" }}>
-          Search
-        </button>
+        <button onClick={handleSearch}>Search</button>
       </div>
+      <Link to="/" className="back-link">
+        Back to Home
+      </Link>
     </div>
   );
 };

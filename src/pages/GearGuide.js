@@ -1,124 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MapViewForGear from "../components/MapViewForGear";
+import { supabase } from "../supabase";
 import "./GearGuide.css";
 
-// Define lake coordinates and gear recommendations
-const lakes = [
-  {
-    id: "lake-washington",
-    name: "Lake Washington",
-    lat: 47.6062,
-    lon: -122.2577,
-    recommendations: {
-      Bass: {
-        rod: "Medium Action, 6.5-7ft",
-        reel: "3000-4000 size spinning reel",
-        line: "10-15 lb braided main line\n8-12 lb fluorocarbon leader",
-      },
-      Trout: {
-        rod: "Light Action, 6-7ft",
-        reel: "2000-3000 size spinning reel",
-        line: "4-8 lb monofilament line\n4-6 lb fluorocarbon leader",
-      },
-    },
-  },
-  {
-    id: "lake-sammamish",
-    name: "Lake Sammamish",
-    lat: 47.5806,
-    lon: -122.0748,
-    recommendations: {
-      Bass: {
-        rod: "Medium Action, 6.5-7ft",
-        reel: "3000-4000 size spinning reel",
-        line: "10-15 lb braided main line\n8-12 lb fluorocarbon leader",
-      },
-      Kokanee: {
-        rod: "Ultra-Light Action, 6-7ft",
-        reel: "1000-2000 size spinning reel",
-        line: "2-4 lb monofilament line\n2-4 lb fluorocarbon leader",
-      },
-    },
-  },
-  {
-    id: "lake-union",
-    name: "Lake Union",
-    lat: 47.6286,
-    lon: -122.3372,
-    recommendations: {
-      Perch: {
-        rod: "Ultra-Light Action, 5-6ft",
-        reel: "1000-2000 size spinning reel",
-        line: "2-6 lb monofilament line\n2-4 lb fluorocarbon leader",
-      },
-      Trout: {
-        rod: "Light Action, 6-7ft",
-        reel: "2000-3000 size spinning reel",
-        line: "4-8 lb monofilament line\n4-6 lb fluorocarbon leader",
-      },
-    },
-  },
-  {
-    id: "green-lake",
-    name: "Green Lake",
-    lat: 47.6797,
-    lon: -122.3502,
-    recommendations: {
-      Perch: {
-        rod: "Ultra-Light Action, 5-6ft",
-        reel: "1000-2000 size spinning reel",
-        line: "2-6 lb monofilament line\n2-4 lb fluorocarbon leader",
-      },
-      RainbowTrout: {
-        rod: "Light Action, 6-7ft",
-        reel: "2000-3000 size spinning reel",
-        line: "4-8 lb monofilament line\n4-6 lb fluorocarbon leader",
-      },
-    },
-  },
-  {
-    id: "rattlesnake-lake",
-    name: "Rattlesnake Lake",
-    lat: 47.4381,
-    lon: -121.7886,
-    recommendations: {
-      Trout: {
-        rod: "Light Action, 6-7ft",
-        reel: "2000-3000 size spinning reel",
-        line: "4-8 lb monofilament line\n4-6 lb fluorocarbon leader",
-      },
-      Bass: {
-        rod: "Medium Action, 6.5-7ft",
-        reel: "3000-4000 size spinning reel",
-        line: "10-15 lb braided main line\n8-12 lb fluorocarbon leader",
-      },
-    },
-  },
-  {
-    id: "crescent-lake",
-    name: "Crescent Lake",
-    lat: 48.0519,
-    lon: -123.9973,
-    recommendations: {
-      Trout: {
-        rod: "Light Action, 6-7ft",
-        reel: "2000-3000 size spinning reel",
-        line: "4-8 lb monofilament line\n4-6 lb fluorocarbon leader",
-      },
-      Kokanee: {
-        rod: "Ultra-Light Action, 6-7ft",
-        reel: "1000-2000 size spinning reel",
-        line: "2-4 lb monofilament line\n2-4 lb fluorocarbon leader",
-      },
-    },
-  },
-];
-
 const GearGuide = () => {
-  const [selectedLake, setSelectedLake] = useState(lakes[0]); // Default to Lake Washington
+  const [lakes, setLakes] = useState([]);
+  const [gearRecommendations, setGearRecommendations] = useState({});
+  const [selectedLake, setSelectedLake] = useState(null);
   const [position, setPosition] = useState(null);
   const [error, setError] = useState("");
+
+  // Fetch lakes and gear recommendations from Supabase
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch lakes
+        const { data: lakesData, error: lakesError } = await supabase
+          .from('lakes')
+          .select('*');
+        
+        if (lakesError) throw new Error(lakesError.message || "Failed to fetch lakes");
+
+        // Fetch gear recommendations
+        const { data: gearData, error: gearError } = await supabase
+          .from('gear_recommendations')
+          .select('*');
+
+        if (gearError) throw new Error(gearError.message || "Failed to fetch gear recommendations");
+
+        // Format gear recommendations into the same structure as the static data
+        const formattedGear = gearData.reduce((acc, item) => {
+          if (!acc[item.lake_id]) {
+            acc[item.lake_id] = {};
+          }
+          acc[item.lake_id][item.species] = {
+            rod: item.rod,
+            reel: item.reel,
+            line: item.line,
+          };
+          return acc;
+        }, {});
+
+        setLakes(lakesData);
+        setGearRecommendations(formattedGear);
+
+        // Set default selected lake (e.g., Lake Washington)
+        const defaultLake = lakesData.find(lake => lake.id === "lake-washington") || lakesData[0];
+        setSelectedLake(defaultLake);
+        setError("");
+      } catch (error) {
+        setError(`Error: ${error.message}`);
+        setLakes([]);
+        setGearRecommendations({});
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const getUserLocation = () => {
     if ("geolocation" in navigator) {
@@ -156,8 +95,11 @@ const GearGuide = () => {
     }
   };
 
-  const defaultSpecies = Object.keys(selectedLake.recommendations)[0] || "Not available";
-  const recommendation = selectedLake.recommendations[defaultSpecies] || {
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (!selectedLake || !lakes.length) return <p>Loading gear recommendations...</p>;
+
+  const defaultSpecies = Object.keys(gearRecommendations[selectedLake.id] || {})[0] || "Not available";
+  const recommendation = gearRecommendations[selectedLake.id]?.[defaultSpecies] || {
     rod: "Not available",
     reel: "Not available",
     line: "Not available",

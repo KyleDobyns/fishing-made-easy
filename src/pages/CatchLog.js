@@ -1,7 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supabase'; // Adjust path as needed
+import { supabase, supabaseAnonKey } from '../supabase';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './CatchLog.css';
+
+// Custom icon for user location (red dot, matching MapView.js)
+const smallDotIcon = L.divIcon({
+  className: "custom-dot",
+  html: '<div style="width:10px; height:10px; background:red; border-radius:50%;"></div>',
+  iconSize: [10, 10],
+});
+
+// Component to recenter the map
+const RecenterMap = ({ position }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (position) {
+      map.setView(position, 12);
+    }
+  }, [position, map]);
+  return null;
+};
 
 const CatchLog = () => {
   const [catchEntry, setCatchEntry] = useState({
@@ -14,6 +35,12 @@ const CatchLog = () => {
   const [error, setError] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
   const [user, setUser] = useState(null);
+  const [position, setPosition] = useState(null);
+  const [weather, setWeather] = useState(null);
+  const [locationName, setLocationName] = useState('');
+  const [weatherError, setWeatherError] = useState('');
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedCoordinates, setSelectedCoordinates] = useState(null);
 
   // Fetch the authenticated user
   useEffect(() => {
@@ -39,14 +66,83 @@ const CatchLog = () => {
           setError('Failed to load catches.');
         } else {
           setCatches(data.map(catchItem => ({
+            id: catchItem.id,
             description: `${catchItem.fish_type} - ${catchItem.length}" (${catchItem.date})`,
             image: catchItem.image_url,
+            weather: catchItem.weather,
+            location: catchItem.location,
+            lat: catchItem.lat,
+            lon: catchItem.lon,
           })));
         }
       };
       fetchCatches();
     }
   }, [user]);
+
+  // Fetch user location for weather
+  const getUserLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setPosition([latitude, longitude]);
+        },
+        (err) => {
+          setWeatherError(`Geolocation error: ${err.message}. Using default location (Seattle).`);
+          setPosition([47.6062, -122.2577]); // Fallback to Seattle
+          setLocationName("Seattle");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      setWeatherError("Geolocation is not supported by this browser. Using default location (Seattle).");
+      setPosition([47.6062, -122.2577]); // Fallback to Seattle
+      setLocationName("Seattle");
+    }
+  };
+
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
+  // Fetch current weather and coordinates
+  useEffect(() => {
+    if (!position) return;
+
+    const fetchWeather = async () => {
+      try {
+        const [lat, lon] = position;
+        const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/super-worker', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ lat, lon }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+
+        const data = await response.json();
+        setWeather(data.current_weather_description);
+        setLocationName(data.location);
+        setWeatherError('');
+      } catch (error) {
+        setWeatherError('Weather data unavailable. Catch will be saved without weather.');
+        setWeather(null);
+        setLocationName('');
+      }
+    };
+
+    fetchWeather();
+  }, [position]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -82,7 +178,7 @@ const CatchLog = () => {
       setError('Please fill in all fields (except image, which is optional).');
       return;
     }
-  
+
     let imageUrl = null;
     if (catchEntry.image) {
       const timestamp = Date.now();
@@ -95,31 +191,39 @@ const CatchLog = () => {
         console.error('Image upload error:', uploadError);
         setError(`Failed to upload image: ${uploadError.message}, but catch will still be saved.`);
       } else {
-        console.log('Upload response data:', data); // Log the response
-        imageUrl = supabase.storage.from('catch-photos').getPublicUrl(data.path).data.publicUrl; // Use data.path directly
+        console.log('Upload response data:', data);
+        imageUrl = supabase.storage.from('catch-photos').getPublicUrl(data.path).data.publicUrl;
         console.log('Image uploaded, public URL:', imageUrl);
       }
     }
-  
+
     const newCatch = {
       user_id: user.id,
       fish_type: catchEntry.fishType,
       length: parseFloat(catchEntry.length),
       date: catchEntry.date,
       image_url: imageUrl,
+      weather: weather || 'Not available',
+      location: locationName || 'Not available',
+      lat: position ? position[0] : null,
+      lon: position ? position[1] : null,
     };
     console.log('Inserting catch:', newCatch);
-  
+
     const { error: insertError } = await supabase.from('catches').insert(newCatch);
     if (insertError) {
       console.error('Error saving catch:', insertError);
       setError(`Failed to save catch: ${insertError.message}`);
       return;
     }
-  
+
     setCatches((prev) => [{
       description: `${catchEntry.fishType} - ${catchEntry.length}" (${catchEntry.date})`,
       image: imageUrl,
+      weather: weather || 'Not available',
+      location: locationName || 'Not available',
+      lat: position ? position[0] : null,
+      lon: position ? position[1] : null,
     }, ...prev.slice(0, 4)]);
     setCatchEntry({ fishType: '', length: '', date: '', image: null });
     setImagePreview(null);
@@ -143,6 +247,24 @@ const CatchLog = () => {
     }
   };
 
+  const deleteCatch = async (catchId) => {
+    if (!user) {
+      setError('Please log in to delete a catch.');
+      return;
+    }
+    const { error } = await supabase
+      .from('catches')
+      .delete()
+      .eq('id', catchId)
+      .eq('user_id', user.id);
+    if (error) {
+      console.error('Error deleting catch:', error);
+      setError('Failed to delete catch.');
+    } else {
+      setCatches(catches.filter(catchItem => catchItem.id !== catchId));
+    }
+  };
+
   // Helper to convert base64 to file for Supabase Storage
   const dataURLtoFile = (dataurl, filename) => {
     const arr = dataurl.split(',');
@@ -154,9 +276,28 @@ const CatchLog = () => {
     return new File([u8arr], filename, { type: mime });
   };
 
+  const openMapModal = (catchItem) => {
+    if (catchItem.lat && catchItem.lon) {
+      setSelectedCoordinates({
+        lat: catchItem.lat,
+        lon: catchItem.lon,
+        location: catchItem.location,
+      });
+      setShowMapModal(true);
+    }
+  };
+
+  const closeMapModal = (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    console.log('Closing map modal'); // Debug log
+    setShowMapModal(false);
+    setSelectedCoordinates(null);
+  };
+
   return (
     <div className="catch-log-container">
       <h1 className="catch-log-title">Catch Log</h1>
+      {weatherError && <p className="error-message">{weatherError}</p>}
       {!user ? (
         <p>Please log in to log a catch.</p>
       ) : (
@@ -225,14 +366,34 @@ const CatchLog = () => {
             {catches.length > 0 ? (
               <>
                 <button onClick={clearCatches} className="catch-log-button" style={{ marginBottom: '10px' }}>
-                  Clear Catches
+                  Clear All Catches
                 </button>
                 {catches.map((catchItem, index) => (
                   <div key={index} className="catch-item">
                     <div>{catchItem.description}</div>
+                    <div className="catch-details">
+                      <span>Weather: {catchItem.weather}</span>
+                      <span>
+                        Location:{' '}
+                        {catchItem.lat && catchItem.lon ? (
+                          <span className="location-link" onClick={() => openMapModal(catchItem)}>
+                            {catchItem.location}
+                          </span>
+                        ) : (
+                          catchItem.location
+                        )}
+                      </span>
+                    </div>
                     {catchItem.image && (
                       <img src={catchItem.image} alt={catchItem.description} style={{ maxWidth: '100%', maxHeight: '150px', marginTop: '5px' }} />
                     )}
+                    <button
+                      onClick={() => deleteCatch(catchItem.id)}
+                      className="delete-catch-button"
+                      style={{ marginTop: '5px' }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </>
@@ -245,9 +406,28 @@ const CatchLog = () => {
       <Link to="/" className="back-link">
         Back to Home
       </Link>
+
+      {showMapModal && selectedCoordinates && (
+        <div className="map-modal">
+          <div className="map-modal-content">
+            <span className="map-modal-close" onClick={closeMapModal}>×</span>
+            <MapContainer
+              center={[selectedCoordinates.lat, selectedCoordinates.lon]}
+              zoom={12}
+              style={{ width: '100%', height: '400px' }}
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <Marker
+                position={[selectedCoordinates.lat, selectedCoordinates.lon]}
+                icon={smallDotIcon}
+              />
+              <RecenterMap position={[selectedCoordinates.lat, selectedCoordinates.lon]} />
+            </MapContainer>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default CatchLog;
-

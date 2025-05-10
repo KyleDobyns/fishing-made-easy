@@ -73,6 +73,21 @@
   background-color: darkred;
 }
 
+.delete-catch-button {
+  padding: 5px 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.delete-catch-button:hover {
+  background-color: #777;
+}
+
 .recent-catches-list {
   display: flex;
   flex-wrap: wrap;
@@ -90,6 +105,26 @@
   background-color: #222;
   width: 100%; /* Full width on mobile */
   box-sizing: border-box;
+}
+
+.catch-details {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.catch-details span {
+  display: block;
+}
+
+.location-link {
+  color: #ff3333;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.location-link:hover {
+  color: red;
 }
 
 .catch-item img {
@@ -111,6 +146,51 @@
 
 .back-link:hover {
   color: #ff3333;
+}
+
+.map-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.map-modal-content {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.map-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 30px;
+  color: white;
+  background-color: red;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1100; /* Ensure it’s above the map */
+  transition: background-color 0.3s ease;
+}
+
+.map-modal-close:hover {
+  background-color: #ff3333;
 }
 
 /* Mobile Adjustments */
@@ -135,8 +215,29 @@
     max-width: 200px;
   }
 
+  .delete-catch-button {
+    width: 90%;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
   .catch-item {
     flex: 1 1 100%;
     max-width: 100%;
+  }
+
+  .catch-details {
+    font-size: 0.8rem;
+  }
+
+  .map-modal-content {
+    width: 95%;
+    padding: 10px;
+  }
+
+  .map-modal-close {
+    font-size: 24px;
+    width: 32px;
+    height: 32px;
   }
 }

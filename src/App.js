@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import GearGuide from "./pages/GearGuide";
 import CatchLog from "./pages/CatchLog";
 import Tides from "./pages/Tides";
+import Weather from "./components/Weather";
 import { CatchProvider } from "./CatchContext";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
             <Route path="/gear-guide" element={<GearGuide />} />
             <Route path="/catch-log" element={<CatchLog />} />
             <Route path="/tides" element={<Tides />} />
+            <Route path="/weather" element={<Weather />} />
           </Routes>
         </div>
       </Router>
