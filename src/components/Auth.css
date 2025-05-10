@@ -1,130 +1,78 @@
-/* Auth Section */
 .auth-container {
-    width: 100%;
-    max-width: calc(100% - 10px); /* Fit within viewport */
-    background: #2a2a2a; /* Match weather-section and feature-card background */
-    border-radius: 12px;
-    padding: 20px;
-    box-sizing: border-box;
-    animation: fadeIn 0.5s ease-out; /* Match weather-section animation */
-    margin-bottom: 20px; /* Space below Auth section */
-    margin-left: 5px;
-    margin-right: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
-    border: 2px solid red; /* Match feature-card and catch border */
-    position: relative;
+  padding: 20px;
+  text-align: center;
+  background-color: black;
+  color: white;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative; /* Establish stacking context */
+  z-index: 10; /* Ensure Auth is above other homepage elements */
+}
+
+.auth-container h2 {
+  color: red;
+  margin-bottom: 20px;
+}
+
+.auth-container .auth-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid white !important; /* Ensure border is applied */
+  background-color: #222 !important; /* Ensure dark background */
+  color: white !important; /* Ensure white text */
+  pointer-events: auto; /* Ensure inputs are clickable */
+  z-index: 11; /* Above the container */
+  box-sizing: border-box;
+  outline: none; /* Remove browser default outline */
+  -webkit-appearance: none; /* Remove browser default styling */
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.auth-container .auth-input:focus {
+  border-color: red; /* Highlight on focus */
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Subtle glow on focus */
+}
+
+.auth-container p {
+  color: red;
+  margin: 10px 0;
+}
+
+.auth-button {
+  padding: 10px 20px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: darkred;
+}
+
+.auth-button-secondary {
+  background-color: #555;
+}
+
+.auth-button-secondary:hover {
+  background-color: #777;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  .auth-container .auth-input {
+    max-width: 100%;
   }
-  
-  .auth-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 0, 0, 0.1) 0%, transparent 50%); /* Match feature-card effect */
-    animation: pulse 3s infinite ease-in-out;
-    z-index: 0;
-  }
-  
-  /* Auth Form */
-  .auth-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    z-index: 1; /* Ensure form content is above the ::after effect */
-  }
-  
-  /* Auth Heading */
-  .auth-container h2 {
-    color: red; /* Match recent-catches h2 */
-    font-size: 1.3rem;
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin: 0 0 15px 0;
-    animation: bounce 0.8s infinite alternate; /* Match recent-catches h2 animation */
-  }
-  
-  /* Auth Inputs */
-  .auth-input {
-    width: 90%;
-    max-width: 250px;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background: #1a1a1a; /* Slightly darker than container for contrast */
-    color: white;
-    font-family: 'Roboto', sans-serif;
-    font-size: 1rem;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
-  }
-  
-  .auth-input:focus {
-    outline: none;
-    border-color: red; /* Red accent on focus */
-  }
-  
-  /* Auth Buttons */
+
   .auth-button {
     width: 90%;
     max-width: 200px;
-    padding: 10px;
-    background: #2a2a2a; /* Match container background */
-    color: white;
-    border: 2px solid red; /* Match feature-card border */
-    border-radius: 8px;
-    font-family: 'Roboto', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.1s ease;
-    position: relative;
-    z-index: 1;
   }
-  
-  .auth-button:hover {
-    background: #333; /* Slight darken on hover, match feature-card */
-  }
-  
-  .auth-button:active {
-    transform: scale(0.98); /* Match feature-card touch feedback */
-  }
-  
-  /* Error or Status Messages */
-  .auth-container p {
-    color: white;
-    font-size: 0.9rem;
-    text-align: center;
-    margin: 10px 0;
-    z-index: 1;
-  }
-  
-  /* Mobile Adjustments (optimized for < 600px) */
-  @media (max-width: 600px) {
-    .auth-container {
-      padding: 15px;
-      border-radius: 10px;
-    }
-    .auth-container h2 {
-      font-size: 1.1rem;
-    }
-    .auth-input {
-      width: 100%;
-      max-width: 200px;
-      padding: 6px;
-      font-size: 0.9rem;
-    }
-    .auth-button {
-      width: 100%;
-      max-width: 150px;
-      padding: 8px;
-      font-size: 0.9rem;
-    }
-  }
+}
