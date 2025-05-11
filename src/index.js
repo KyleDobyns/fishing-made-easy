@@ -3,9 +3,6 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-console.log("✅ index.js is running!");
-console.log("✅ Root element found, mounting React...");
-
 const root = ReactDOM.createRoot(document.getElementById("root")); 
 root.render(
   <React.StrictMode>

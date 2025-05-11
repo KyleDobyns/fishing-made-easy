@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Auth from '../components/Auth';
-import { supabase, supabaseAnonKey } from '../supabase';
+import { supabase } from '../supabase';
+import useWeather from '../hooks/useWeather';
 import './HomePage.css';
 
 const HomePage = () => {
   const [user, setUser] = useState(null);
   const [catches, setCatches] = useState([]);
-  const [weather, setWeather] = useState(null);
-  const [position, setPosition] = useState(null);
-  const [locationName, setLocationName] = useState("");
-  const [weatherError, setWeatherError] = useState("");
+  const { weather, locationName, error: weatherError } = useWeather();
 
-  // Fetch user and set up auth listener
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -29,7 +26,6 @@ const HomePage = () => {
     };
   }, []);
 
-  // Fetch recent catches for the user
   useEffect(() => {
     if (user) {
       const fetchCatches = async () => {
@@ -53,77 +49,6 @@ const HomePage = () => {
       setCatches([]);
     }
   }, [user]);
-
-  // Fetch user location for weather
-  const getUserLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setPosition([latitude, longitude]);
-        },
-        (err) => {
-          setWeatherError(`Geolocation error: ${err.message}. Using default location (Seattle).`);
-          setPosition([47.6062, -122.2577]); // Fallback to Seattle
-          setLocationName("Seattle");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    } else {
-      setWeatherError("Geolocation is not supported by this browser. Using default location (Seattle).");
-      setPosition([47.6062, -122.2577]); // Fallback to Seattle
-      setLocationName("Seattle");
-    }
-  };
-
-  useEffect(() => {
-    getUserLocation();
-  }, []);
-
-  // Fetch current weather
-  useEffect(() => {
-    if (!position) return;
-
-    const fetchWeather = async () => {
-      try {
-        const [lat, lon] = position;
-        const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/super-worker', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify({ lat, lon }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch weather data');
-        }
-
-        const data = await response.json();
-        setWeather({
-          location: data.location,
-          temperature: data.current_temperature,
-          description: data.current_weather_description,
-          humidity: data.current_humidity,
-          windSpeed: data.current_wind_speed,
-          sunrise: new Date(data.sunrise).toLocaleTimeString(),
-          sunset: new Date(data.sunset).toLocaleTimeString(),
-        });
-        setLocationName(data.location); // Update location name from API response
-        setWeatherError("");
-      } catch (error) {
-        setWeatherError("Weather data unavailable. Please try again later.");
-        setWeather(null);
-      }
-    };
-
-    fetchWeather();
-  }, [position]);
 
   return (
     <div className="homepage">

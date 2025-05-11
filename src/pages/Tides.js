@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
@@ -40,35 +40,31 @@ const Tides = () => {
     fetchStations();
   }, []);
 
-  const getUserLocation = useCallback(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setPosition([latitude, longitude]);
-          fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-        },
-        (err) => {
-          setError("Unable to get your location. Using default location instead.");
-          setPosition([47.6025, -122.3340]);
-          fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by your browser. Using default location.");
-      setPosition([47.6025, -122.3340]);
-      fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-    }
-  }, [selectedStation, timeFrame, selectedDate]);
-
-  useEffect(() => {
-    getUserLocation();
-  }, [getUserLocation]);
+const getUserLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setPosition([latitude, longitude]);
+        fetchTidesForStation(selectedStation, timeFrame, selectedDate);
+      },
+      (err) => {
+        setError("Unable to get your location. Using default location instead.");
+        setPosition([47.6025, -122.3340]);
+        fetchTidesForStation(selectedStation, timeFrame, selectedDate);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  } else {
+    setError("Geolocation is not supported by your browser. Using default location.");
+    setPosition([47.6025, -122.3340]);
+    fetchTidesForStation(selectedStation, timeFrame, selectedDate);
+  }
+};
 
 const fetchTidesForStation = async (stationId, timeFrame, date) => {
   const today = new Date(date);
