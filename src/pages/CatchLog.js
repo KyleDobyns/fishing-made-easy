@@ -167,69 +167,77 @@ const CatchLog = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Submitting catch with user:', user);
-    console.log('Catch entry:', catchEntry);
-    if (!user) {
-      setError('Please log in to log a catch.');
-      return;
-    }
-    if (!catchEntry.fishType || !catchEntry.length || !catchEntry.date) {
-      setError('Please fill in all fields (except image, which is optional).');
-      return;
-    }
+  e.preventDefault();
+  console.log('Submitting catch with user:', user);
+  console.log('Catch entry:', catchEntry);
+  if (!user) {
+    setError('Please log in to log a catch.');
+    return;
+  }
+  if (!catchEntry.fishType || !catchEntry.length || !catchEntry.date) {
+    setError('Please fill in all fields (except image, which is optional).');
+    return;
+  }
 
-    let imageUrl = null;
-    if (catchEntry.image) {
-      const timestamp = Date.now();
-      const file = dataURLtoFile(catchEntry.image, `catch-${timestamp}.png`);
-      console.log('Uploading image:', file);
-      const { data, error: uploadError } = await supabase.storage
-        .from('catch-photos')
-        .upload(`${user.id}/${file.name}`, file, { upsert: false });
-      if (uploadError) {
-        console.error('Image upload error:', uploadError);
-        setError(`Failed to upload image: ${uploadError.message}, but catch will still be saved.`);
-      } else {
-        console.log('Upload response data:', data);
-        imageUrl = supabase.storage.from('catch-photos').getPublicUrl(data.path).data.publicUrl;
-        console.log('Image uploaded, public URL:', imageUrl);
-      }
+  let imageUrl = null;
+  if (catchEntry.image) {
+    const timestamp = Date.now();
+    const file = dataURLtoFile(catchEntry.image, `catch-${timestamp}.png`);
+    console.log('Uploading image:', file);
+    const { data, error: uploadError } = await supabase.storage
+      .from('catch-photos')
+      .upload(`${user.id}/${file.name}`, file, { upsert: false });
+    if (uploadError) {
+      console.error('Image upload error:', uploadError);
+      setError(`Failed to upload image: ${uploadError.message}, but catch will still be saved.`);
+    } else {
+      console.log('Upload response data:', data);
+      imageUrl = supabase.storage.from('catch-photos').getPublicUrl(data.path).data.publicUrl;
+      console.log('Image uploaded, public URL:', imageUrl);
     }
+  }
 
-    const newCatch = {
-      user_id: user.id,
-      fish_type: catchEntry.fishType,
-      length: parseFloat(catchEntry.length),
-      date: catchEntry.date,
-      image_url: imageUrl,
-      weather: weather || 'Not available',
-      location: locationName || 'Not available',
-      lat: position ? position[0] : null,
-      lon: position ? position[1] : null,
-    };
-    console.log('Inserting catch:', newCatch);
-
-    const { error: insertError } = await supabase.from('catches').insert(newCatch);
-    if (insertError) {
-      console.error('Error saving catch:', insertError);
-      setError(`Failed to save catch: ${insertError.message}`);
-      return;
-    }
-
-    setCatches((prev) => [{
-      description: `${catchEntry.fishType} - ${catchEntry.length}" (${catchEntry.date})`,
-      image: imageUrl,
-      weather: weather || 'Not available',
-      location: locationName || 'Not available',
-      lat: position ? position[0] : null,
-      lon: position ? position[1] : null,
-    }, ...prev.slice(0, 4)]);
-    setCatchEntry({ fishType: '', length: '', date: '', image: null });
-    setImagePreview(null);
-    setError('');
+  const newCatch = {
+    user_id: user.id,
+    fish_type: catchEntry.fishType,
+    length: parseFloat(catchEntry.length),
+    date: catchEntry.date,
+    image_url: imageUrl,
+    weather: weather || 'Not available',
+    location: locationName || 'Not available',
+    lat: position ? position[0] : null,
+    lon: position ? position[1] : null,
   };
+  console.log('Inserting catch:', newCatch);
 
+  // Use .insert().select() to get the inserted row (including the auto-generated id)
+  const { data: insertedCatch, error: insertError } = await supabase
+    .from('catches')
+    .insert(newCatch)
+    .select()
+    .single(); // .single() because we're inserting one row
+
+  if (insertError) {
+    console.error('Error saving catch:', insertError);
+    setError(`Failed to save catch: ${insertError.message}`);
+    return;
+  }
+
+  // Add the new catch (including its id) to the catches state
+  setCatches((prev) => [{
+    id: insertedCatch.id, // Include the id from the inserted catch
+    description: `${insertedCatch.fish_type} - ${insertedCatch.length}" (${insertedCatch.date})`,
+    image: insertedCatch.image_url,
+    weather: insertedCatch.weather || 'Not available',
+    location: insertedCatch.location || 'Not available',
+    lat: insertedCatch.lat,
+    lon: insertedCatch.lon,
+  }, ...prev.slice(0, 4)]);
+
+  setCatchEntry({ fishType: '', length: '', date: '', image: null });
+  setImagePreview(null);
+  setError('');
+};
   const clearCatches = async () => {
     if (!user) {
       setError('Please log in to clear catches.');
