@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabaseAnonKey } from "../supabase";
-
+/* eslint-disable react-hooks/exhaustive-deps */
 const useWeather = (fetchForecast = false) => {
   const [position, setPosition] = useState(null);
   const [weather, setWeather] = useState(null);
@@ -90,24 +90,50 @@ const useWeather = (fetchForecast = false) => {
     }
   };
 
-  const fetchLocationName = useCallback(async (lat, lon) => {
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
-      const data = await response.json();
-      console.log("Reverse geocoding response:", data);
+  // Suppress warning since stateAbbreviations is a static constant
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchLocationName = useCallback(async (lat, lon, retries = 3, delay = 1000) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
+          headers: {
+            "User-Agent": "FishingMadeEasy/1.0",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Nominatim API error: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log("Reverse geocoding response:", data);
 
-      // Extract city and state from the address object
-      const city = data.address.city || data.address.town || data.address.village || "Unknown City";
-      const state = data.address.state || "Unknown State";
-      const stateAbbreviation = stateAbbreviations[state] || "Unknown";
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          data.address.hamlet ||
+          data.address.suburb ||
+          data.address.county ||
+          "Unknown City";
+        const state = data.address.state || data.address.region || "Unknown State";
+        const stateAbbreviation = stateAbbreviations[state] || "Unknown";
 
-      const simplifiedLocation = `${city}, ${stateAbbreviation}`;
-      return simplifiedLocation;
-    } catch (error) {
-      console.error("Reverse geocoding error:", error.message);
-      return "Unknown Location";
+        console.log("Extracted city:", city);
+        console.log("Extracted state:", state);
+        console.log("State abbreviation:", stateAbbreviation);
+
+        const simplifiedLocation = `${city}, ${stateAbbreviation}`;
+        console.log("Simplified location:", simplifiedLocation);
+        return simplifiedLocation;
+      } catch (error) {
+        console.error(`Reverse geocoding error (attempt ${attempt}/${retries}):`, error.message);
+        if (attempt === retries) {
+          return "Unknown Location";
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    return "Unknown Location";
+  }, []);
 
   const fetchWeatherByLocation = useCallback(async (lat, lon, location = "User Location") => {
     try {
@@ -129,7 +155,6 @@ const useWeather = (fetchForecast = false) => {
       const data = await response.json();
       console.log("Weather API response:", data);
 
-      // Fetch precise location name using reverse geocoding
       const preciseLocationName = await fetchLocationName(lat, lon);
 
       if (fetchForecast) {

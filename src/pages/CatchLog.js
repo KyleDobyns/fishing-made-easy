@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, supabaseAnonKey } from '../supabase';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './CatchLog.css';
+/* eslint-disable react-hooks/exhaustive-deps */
 
 // Custom icon for user location (red dot, matching MapView.js)
 const smallDotIcon = L.divIcon({
@@ -90,7 +91,7 @@ const CatchLog = () => {
         },
         (err) => {
           setWeatherError(`Geolocation error: ${err.message}. Using default location (Seattle).`);
-          setPosition([47.6062, -122.2577]); // Fallback to Seattle
+          setPosition([47.6062, -122.2577]);
           setLocationName("Seattle");
         },
         {
@@ -101,7 +102,7 @@ const CatchLog = () => {
       );
     } else {
       setWeatherError("Geolocation is not supported by this browser. Using default location (Seattle).");
-      setPosition([47.6062, -122.2577]); // Fallback to Seattle
+      setPosition([47.6062, -122.2577]);
       setLocationName("Seattle");
     }
   };
@@ -110,39 +111,125 @@ const CatchLog = () => {
     getUserLocation();
   }, []);
 
-  // Fetch current weather and coordinates
+  // Define stateAbbreviations locally
+  const stateAbbreviations = {
+    "Alabama": "AL",
+    "Alaska": "AK",
+    "Arizona": "AZ",
+    "Arkansas": "AR",
+    "California": "CA",
+    "Colorado": "CO",
+    "Connecticut": "CT",
+    "Delaware": "DE",
+    "Florida": "FL",
+    "Georgia": "GA",
+    "Hawaii": "HI",
+    "Idaho": "ID",
+    "Illinois": "IL",
+    "Indiana": "IN",
+    "Iowa": "IA",
+    "Kansas": "KS",
+    "Kentucky": "KY",
+    "Louisiana": "LA",
+    "Maine": "ME",
+    "Maryland": "MD",
+    "Massachusetts": "MA",
+    "Michigan": "MI",
+    "Minnesota": "MN",
+    "Mississippi": "MS",
+    "Missouri": "MO",
+    "Montana": "MT",
+    "Nebraska": "NE",
+    "Nevada": "NV",
+    "New Hampshire": "NH",
+    "New Jersey": "NJ",
+    "New Mexico": "NM",
+    "New York": "NY",
+    "North Carolina": "NC",
+    "North Dakota": "ND",
+    "Ohio": "OH",
+    "Oklahoma": "OK",
+    "Oregon": "OR",
+    "Pennsylvania": "PA",
+    "Rhode Island": "RI",
+    "South Carolina": "SC",
+    "South Dakota": "SD",
+    "Tennessee": "TN",
+    "Texas": "TX",
+    "Utah": "UT",
+    "Vermont": "VT",
+    "Virginia": "VA",
+    "Washington": "WA",
+    "West Virginia": "WV",
+    "Wisconsin": "WI",
+    "Wyoming": "WY",
+  };
+
+  const fetchLocationName = async (lat, lon) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
+        headers: {
+          "User-Agent": "FishingMadeEasy/1.0",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Nominatim API error: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      const city =
+        data.address.city ||
+        data.address.town ||
+        data.address.village ||
+        data.address.hamlet ||
+        data.address.suburb ||
+        data.address.county ||
+        "Unknown City";
+      const state = data.address.state || data.address.region || "Unknown State";
+      const stateAbbreviation = stateAbbreviations[state] || "Unknown";
+      return `${city}, ${stateAbbreviation}`;
+    } catch (error) {
+      console.error("Fetch location name error in CatchLog:", error.message);
+      return "Unknown Location";
+    }
+  };
+
+  // Suppress warning since fetchLocationName is a stable function defined locally
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchWeather = useCallback(async (lat, lon) => {
+    try {
+      const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/super-worker', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({ lat, lon }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch weather data');
+      }
+
+      const data = await response.json();
+      setWeather(data.current_weather_description);
+      
+      // Fetch precise location name using reverse geocoding
+      const preciseLocationName = await fetchLocationName(lat, lon);
+      setLocationName(preciseLocationName);
+      setWeatherError('');
+      return preciseLocationName;
+    } catch (error) {
+      setWeatherError('Weather data unavailable. Catch will be saved without weather.');
+      setWeather(null);
+      setLocationName('');
+      return "Unknown Location";
+    }
+  }, []); // Empty dependency array since fetchWeather doesn't depend on any changing values
+
   useEffect(() => {
     if (!position) return;
-
-    const fetchWeather = async () => {
-      try {
-        const [lat, lon] = position;
-        const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/super-worker', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify({ lat, lon }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch weather data');
-        }
-
-        const data = await response.json();
-        setWeather(data.current_weather_description);
-        setLocationName(data.location);
-        setWeatherError('');
-      } catch (error) {
-        setWeatherError('Weather data unavailable. Catch will be saved without weather.');
-        setWeather(null);
-        setLocationName('');
-      }
-    };
-
-    fetchWeather();
-  }, [position]);
+    fetchWeather(position[0], position[1]);
+  }, [position, fetchWeather]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -167,77 +254,86 @@ const CatchLog = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log('Submitting catch with user:', user);
-  console.log('Catch entry:', catchEntry);
-  if (!user) {
-    setError('Please log in to log a catch.');
-    return;
-  }
-  if (!catchEntry.fishType || !catchEntry.length || !catchEntry.date) {
-    setError('Please fill in all fields (except image, which is optional).');
-    return;
-  }
-
-  let imageUrl = null;
-  if (catchEntry.image) {
-    const timestamp = Date.now();
-    const file = dataURLtoFile(catchEntry.image, `catch-${timestamp}.png`);
-    console.log('Uploading image:', file);
-    const { data, error: uploadError } = await supabase.storage
-      .from('catch-photos')
-      .upload(`${user.id}/${file.name}`, file, { upsert: false });
-    if (uploadError) {
-      console.error('Image upload error:', uploadError);
-      setError(`Failed to upload image: ${uploadError.message}, but catch will still be saved.`);
-    } else {
-      console.log('Upload response data:', data);
-      imageUrl = supabase.storage.from('catch-photos').getPublicUrl(data.path).data.publicUrl;
-      console.log('Image uploaded, public URL:', imageUrl);
+    e.preventDefault();
+    console.log('Submitting catch with user:', user);
+    console.log('Catch entry:', catchEntry);
+    if (!user) {
+      setError('Please log in to log a catch.');
+      return;
     }
-  }
+    if (!catchEntry.fishType || !catchEntry.length || !catchEntry.date) {
+      setError('Please fill in all fields (except image, which is optional).');
+      return;
+    }
 
-  const newCatch = {
-    user_id: user.id,
-    fish_type: catchEntry.fishType,
-    length: parseFloat(catchEntry.length),
-    date: catchEntry.date,
-    image_url: imageUrl,
-    weather: weather || 'Not available',
-    location: locationName || 'Not available',
-    lat: position ? position[0] : null,
-    lon: position ? position[1] : null,
+    // Ensure locationName is up-to-date by fetching weather and location again
+    let finalLocationName = locationName;
+    if (!locationName || locationName === "Unknown Location" || locationName === "User Location" || locationName === "") {
+      if (position && position[0] && position[1]) {
+        finalLocationName = await fetchLocationName(position[0], position[1]);
+      } else {
+        finalLocationName = "Unknown Location";
+      }
+    }
+
+    let imageUrl = null;
+    if (catchEntry.image) {
+      const timestamp = Date.now();
+      const file = dataURLtoFile(catchEntry.image, `catch-${timestamp}.png`);
+      console.log('Uploading image:', file);
+      const { data, error: uploadError } = await supabase.storage
+        .from('catch-photos')
+        .upload(`${user.id}/${file.name}`, file, { upsert: false });
+      if (uploadError) {
+        console.error('Image upload error:', uploadError);
+        setError(`Failed to upload image: ${uploadError.message}, but catch will still be saved.`);
+      } else {
+        console.log('Upload response data:', data);
+        imageUrl = supabase.storage.from('catch-photos').getPublicUrl(data.path).data.publicUrl;
+        console.log('Image uploaded, public URL:', imageUrl);
+      }
+    }
+
+    const newCatch = {
+      user_id: user.id,
+      fish_type: catchEntry.fishType,
+      length: parseFloat(catchEntry.length),
+      date: catchEntry.date,
+      image_url: imageUrl,
+      weather: weather || 'Not available',
+      location: finalLocationName || 'Not available',
+      lat: position ? position[0] : null,
+      lon: position ? position[1] : null,
+    };
+    console.log('Inserting catch:', newCatch);
+
+    const { data: insertedCatch, error: insertError } = await supabase
+      .from('catches')
+      .insert(newCatch)
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error saving catch:', insertError);
+      setError(`Failed to save catch: ${insertError.message}`);
+      return;
+    }
+
+    setCatches((prev) => [{
+      id: insertedCatch.id,
+      description: `${insertedCatch.fish_type} - ${insertedCatch.length}" (${insertedCatch.date})`,
+      image: insertedCatch.image_url,
+      weather: insertedCatch.weather || 'Not available',
+      location: insertedCatch.location || 'Not available',
+      lat: insertedCatch.lat,
+      lon: insertedCatch.lon,
+    }, ...prev.slice(0, 4)]);
+
+    setCatchEntry({ fishType: '', length: '', date: '', image: null });
+    setImagePreview(null);
+    setError('');
   };
-  console.log('Inserting catch:', newCatch);
 
-  // Use .insert().select() to get the inserted row (including the auto-generated id)
-  const { data: insertedCatch, error: insertError } = await supabase
-    .from('catches')
-    .insert(newCatch)
-    .select()
-    .single(); // .single() because we're inserting one row
-
-  if (insertError) {
-    console.error('Error saving catch:', insertError);
-    setError(`Failed to save catch: ${insertError.message}`);
-    return;
-  }
-
-  // Add the new catch (including its id) to the catches state
-  setCatches((prev) => [{
-    id: insertedCatch.id, // Include the id from the inserted catch
-    description: `${insertedCatch.fish_type} - ${insertedCatch.length}" (${insertedCatch.date})`,
-    image: insertedCatch.image_url,
-    weather: insertedCatch.weather || 'Not available',
-    location: insertedCatch.location || 'Not available',
-    lat: insertedCatch.lat,
-    lon: insertedCatch.lon,
-  }, ...prev.slice(0, 4)]);
-
-  setCatchEntry({ fishType: '', length: '', date: '', image: null });
-  setImagePreview(null);
-  setError('');
-};
   const clearCatches = async () => {
     if (!user) {
       setError('Please log in to clear catches.');
@@ -273,7 +369,6 @@ const CatchLog = () => {
     }
   };
 
-  // Helper to convert base64 to file for Supabase Storage
   const dataURLtoFile = (dataurl, filename) => {
     const arr = dataurl.split(',');
     const mime = arr[0].match(/:(.*?);/)[1];
@@ -296,8 +391,8 @@ const CatchLog = () => {
   };
 
   const closeMapModal = (e) => {
-    e.stopPropagation(); // Prevent event bubbling
-    console.log('Closing map modal'); // Debug log
+    e.stopPropagation();
+    console.log('Closing map modal');
     setShowMapModal(false);
     setSelectedCoordinates(null);
   };
