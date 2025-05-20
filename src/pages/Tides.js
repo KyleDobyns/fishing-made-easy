@@ -12,7 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import MapView from "../components/MapView";
-import { supabase } from "../supabase";
+import { supabase, supabaseAnonKey } from "../supabase";
 import "./Tides.css";
 
 // Register Chart.js components
@@ -27,6 +27,7 @@ const Tides = () => {
   const [timeFrame, setTimeFrame] = useState("7days");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
 
+  // Fetch tide stations on mount
   useEffect(() => {
     const fetchStations = async () => {
       const { data, error } = await supabase.from('tide_stations').select('*');
@@ -40,65 +41,91 @@ const Tides = () => {
     fetchStations();
   }, []);
 
-const getUserLocation = () => {
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setPosition([latitude, longitude]);
-        fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-      },
-      (err) => {
-        setError("Unable to get your location. Using default location instead.");
-        setPosition([47.6025, -122.3340]);
-        fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  } else {
-    setError("Geolocation is not supported by your browser. Using default location.");
-    setPosition([47.6025, -122.3340]);
+  // Fetch tides when selectedStation, timeFrame, or selectedDate changes
+  useEffect(() => {
+    // Set a default position if none exists (Seattle)
+    if (!position) {
+      setPosition([47.6025, -122.3340]);
+    }
     fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-  }
-};
+    // eslint-disable-next-line
+  }, [selectedStation, timeFrame, selectedDate]);
 
-const fetchTidesForStation = async (stationId, timeFrame, date) => {
-  const today = new Date(date);
-  const startDate = today.toISOString().split("T")[0].replace(/-/g, "");
-  let endDate;
+  const getUserLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setPosition([latitude, longitude]);
+          // fetchTidesForStation will be called by the useEffect above
+        },
+        (err) => {
+          setError("Unable to get your location. Using default location instead.");
+          setPosition([47.6025, -122.3340]);
+          // fetchTidesForStation will be called by the useEffect above
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      setError("Geolocation is not supported by your browser. Using default location.");
+      setPosition([47.6025, -122.3340]);
+      // fetchTidesForStation will be called by the useEffect above
+    }
+  };
 
-  if (timeFrame === "7days") {
-    endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0]
-      .replace(/-/g, "");
-  } else {
-    endDate = startDate;
-  }
+  const fetchTidesForStation = async (stationId, timeFrame, date) => {
+    console.log("Fetching tides for station:", stationId, "timeFrame:", timeFrame, "date:", date);
+    const today = new Date(date);
+    const startDate = today.toISOString().split("T")[0].replace(/-/g, "");
+    let endDate;
 
-  try {
-    const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/swift-endpoint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer your-supabase-anon-key', // Replace with your anon key
-      },
-      body: JSON.stringify({ stationId, startDate, endDate }),
-    });
+    if (timeFrame === "7days") {
+      endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0]
+        .replace(/-/g, "");
+    } else {
+      endDate = startDate;
+    }
 
-    if (!response.ok) throw new Error('Failed to fetch tide data');
-    const data = await response.json();
-    setTides(data || []);
-    setError("");
-  } catch (error) {
-    setError("Tide data unavailable. Please try again later or select a different station.");
-    setTides(null);
-  }
-};
+    console.log("Start date:", startDate, "End date:", endDate);
+
+    try {
+      // Add a timeout to the fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
+      const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/swift-endpoint', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`, // Use the imported supabaseAnonKey
+        },
+        body: JSON.stringify({ stationId, startDate, endDate }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch tide data');
+      }
+
+      const data = await response.json();
+      console.log("Tide data received:", data);
+      setTides(data || []);
+      setError("");
+    } catch (error) {
+      console.error("Error fetching tide data:", error.message);
+      setError("Tide data unavailable. Please try again later or select a different station.");
+      setTides(null);
+    }
+  };
 
   const handleStationChange = (e) => {
     setSelectedStation(e.target.value);
