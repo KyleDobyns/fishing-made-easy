@@ -12,8 +12,8 @@ import {
   Legend,
 } from "chart.js";
 import MapView from "../components/MapView";
-import { supabase, supabaseAnonKey } from "../supabase";
-import "../styles/Tides.css";
+import { supabase } from "../supabase";
+import "./Tides.css";
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -26,38 +26,7 @@ const Tides = () => {
   const [error, setError] = useState("");
   const [timeFrame, setTimeFrame] = useState("7days");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-  const [themeKey, setThemeKey] = useState(0); // Force chart re-render
-  const chartRef = useRef(null);
 
-  // Function to get current theme colors
-  const getThemeColors = () => {
-    const isLightMode = document.body.classList.contains('light-mode');
-    return {
-      textColor: isLightMode ? '#222222' : '#ffffff',
-      gridColor: isLightMode ? 'rgba(34, 34, 34, 0.2)' : 'rgba(255, 255, 255, 0.2)',
-      lineColor: isLightMode ? '#0074d9' : '#ff8c00' // Orange for dark mode (colorblind friendly)
-    };
-  };
-
-  // Watch for theme changes
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          setThemeKey(prev => prev + 1); // Force chart re-render
-        }
-      });
-    });
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Fetch tide stations on mount
   useEffect(() => {
     const fetchStations = async () => {
       const { data, error } = await supabase.from('tide_stations').select('*');
@@ -71,17 +40,31 @@ const Tides = () => {
     fetchStations();
   }, []);
 
-  // Fetch tides when selectedStation, timeFrame, or selectedDate changes
-  useEffect(() => {
-    // Set a default position if none exists (Seattle)
-    if (!position) {
-      setPosition([47.6025, -122.3340]);
-    }
+const getUserLocation = () => {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setPosition([latitude, longitude]);
+        fetchTidesForStation(selectedStation, timeFrame, selectedDate);
+      },
+      (err) => {
+        setError("Unable to get your location. Using default location instead.");
+        setPosition([47.6025, -122.3340]);
+        fetchTidesForStation(selectedStation, timeFrame, selectedDate);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  } else {
+    setError("Geolocation is not supported by your browser. Using default location.");
+    setPosition([47.6025, -122.3340]);
     fetchTidesForStation(selectedStation, timeFrame, selectedDate);
-    // eslint-disable-next-line
-  }, [selectedStation, timeFrame, selectedDate]);
-
-
+  }
+};
 
   const fetchTidesForStation = async (stationId, timeFrame, date) => {
     console.log("Fetching tides for station:", stationId, "timeFrame:", timeFrame, "date:", date);
@@ -100,37 +83,25 @@ const Tides = () => {
 
     console.log("Start date:", startDate, "End date:", endDate);
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/swift-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer your-supabase-anon-key', // Replace with your anon key
+      },
+      body: JSON.stringify({ stationId, startDate, endDate }),
+    });
 
-      const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/swift-endpoint', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-        },
-        body: JSON.stringify({ stationId, startDate, endDate }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch tide data');
-      }
-
-      const data = await response.json();
-      console.log("Tide data received:", data);
-      setTides(data || []);
-      setError("");
-    } catch (error) {
-      console.error("Error fetching tide data:", error.message);
-      setError("Tide data unavailable. Please try again later or select a different station.");
-      setTides(null);
-    }
-  };
+    if (!response.ok) throw new Error('Failed to fetch tide data');
+    const data = await response.json();
+    setTides(data || []);
+    setError("");
+  } catch (error) {
+    setError("Tide data unavailable. Please try again later or select a different station.");
+    setTides(null);
+  }
+};
 
   const handleStationChange = (e) => {
     setSelectedStation(e.target.value);
