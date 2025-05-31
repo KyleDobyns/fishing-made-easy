@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Custom icon for tide stations (updated to your wave.png)
+// Custom icon for tide stations 
 const tideIcon = L.icon({
   iconUrl: "/assets/wave.png", // Path to your custom icon
   iconSize: [40, 30], // Larger to stand out
@@ -11,7 +11,7 @@ const tideIcon = L.icon({
   popupAnchor: [0, -15], // Position popup below the icon
 });
 
-// Custom icon for user location (keep the red dot for consistency)
+// Custom icon for user location
 const smallDotIcon = L.divIcon({
   className: "custom-dot",
   html: '<div style="width:10px; height:10px; background:red; border-radius:50%;"></div>',
@@ -40,7 +40,7 @@ const TideMarker = ({ station, onClick, isSelected }) => {
       const newMarker = L.marker([station.lat, station.lon], { icon: tideIcon })
         .addTo(map)
         .bindPopup(
-          `<b>${station.name}</b><br>Station ID: ${station.id}` // Removed "Select Station" link
+          `<b>${station.name}</b><br>Station ID: ${station.id}` 
         )
         .on("click", () => onClick(station.id));
 

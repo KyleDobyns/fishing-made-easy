@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabaseAnonKey } from "../supabase";
 import useWeather from "../hooks/useWeather";
-import "./Weather.css";
+import "../styles/Weather.css";
 
 const Weather = () => {
   const { forecast, error, getUserLocation } = useWeather(true);

@@ -1,15 +1,18 @@
 .catch-log-container {
-  padding: 20px;
+  padding: 20px 20px 100px 20px;
   text-align: center;
-  background-color: black;
-  color: white;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
   width: 100%;
   box-sizing: border-box;
+  min-height: 100vh;
+  height: auto; 
+  overflow-y: visible; 
 }
 
 .catch-log-title,
 .recent-catches-title {
-  color: red;
+  color: var(--accent-color);
   margin-bottom: 20px;
 }
 
@@ -28,18 +31,35 @@
   max-width: 300px;
 }
 
+.form-group label {
+  color: var(--primary-text-color);
+  display: block;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
 .catch-input {
   width: 100%;
   padding: 8px;
   border-radius: 5px;
-  border: 1px solid white;
-  background-color: #222;
-  color: white;
-  margin-left: 10px;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  box-sizing: border-box;
+}
+
+.catch-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+
+/* Light mode focus effect */
+.light-mode .catch-input:focus {
+  box-shadow: 0 0 5px rgba(0, 116, 217, 0.3);
 }
 
 .file-input {
-  margin-left: 0;
   margin-top: 5px;
 }
 
@@ -51,18 +71,18 @@
 
 .image-preview img {
   border-radius: 5px;
-  border: 1px solid white;
+  border: 1px solid var(--border-color);
 }
 
 .error-message {
-  color: red;
+  color: var(--error-color);
   margin-top: 10px;
 }
 
 .catch-log-button {
   padding: 10px 20px;
-  background-color: red;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--primary-text-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -70,14 +90,14 @@
 }
 
 .catch-log-button:hover {
-  background-color: darkred;
+  background-color: var(--accent-hover);
 }
 
 .delete-catch-button {
   padding: 5px 10px;
-  background-color: #555;
-  color: white;
-  border: none;
+  background-color: var(--surface-color);
+  color: var(--primary-text-color);
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -85,7 +105,7 @@
 }
 
 .delete-catch-button:hover {
-  background-color: #777;
+  background-color: var(--card-bg);
 }
 
 .recent-catches-list {
@@ -99,18 +119,70 @@
 
 .catch-item {
   padding: 8px;
-  border: 1px solid white;
+  border: 1px solid var(--input-border);
   border-radius: 5px;
   max-width: 120px;
-  background-color: #222;
-  width: 100%; /* Full width on mobile */
+  background-color: var(--card-bg);
+  width: 100%;
   box-sizing: border-box;
+  color: var(--primary-text-color);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.highlighted-catch {
+  border: 3px solid var(--accent-color);
+  background-color: var(--surface-color);
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+  animation: highlightPulse 2s ease-in-out infinite;
+}
+
+/* Light mode highlight */
+.light-mode .highlighted-catch {
+  box-shadow: 0 0 15px rgba(0, 116, 217, 0.4);
+}
+
+@keyframes highlightPulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
+  }
+}
+
+.light-mode .highlighted-catch {
+  animation: highlightPulseLightMode 2s ease-in-out infinite;
+}
+
+@keyframes highlightPulseLightMode {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(0, 116, 217, 0.4);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0, 116, 217, 0.6);
+  }
+}
+
+.highlight-banner {
+  background: var(--accent-color);
+  color: var(--primary-text-color);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .catch-details {
   margin-top: 5px;
   font-size: 0.9rem;
-  color: #ccc;
+  color: var(--secondary-text-color);
 }
 
 .catch-details span {
@@ -118,13 +190,14 @@
 }
 
 .location-link {
-  color: #ff3333;
+  color: var(--link-color);
   cursor: pointer;
   text-decoration: underline;
+  transition: color 0.3s ease;
 }
 
 .location-link:hover {
-  color: red;
+  color: var(--accent-color);
 }
 
 .catch-item img {
@@ -133,19 +206,19 @@
 }
 
 .no-catches {
-  color: #888;
+  color: var(--secondary-text-color);
 }
 
 .back-link {
   display: block;
   margin-top: 20px;
-  color: red;
+  color: var(--accent-color);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .back-link:hover {
-  color: #ff3333;
+  color: var(--link-hover);
 }
 
 .map-modal {
@@ -162,7 +235,7 @@
 }
 
 .map-modal-content {
-  background-color: #222;
+  background-color: var(--surface-color);
   padding: 20px;
   border-radius: 8px;
   position: relative;
@@ -176,8 +249,8 @@
   top: 10px;
   right: 15px;
   font-size: 30px;
-  color: white;
-  background-color: red;
+  color: var(--primary-text-color);
+  background-color: var(--accent-color);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -185,16 +258,19 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  z-index: 1100; /* Ensure it’s above the map */
+  z-index: 1100;
   transition: background-color 0.3s ease;
 }
 
 .map-modal-close:hover {
-  background-color: #ff3333;
+  background-color: var(--accent-hover);
 }
 
 /* Mobile Adjustments */
 @media (max-width: 600px) {
+  .catch-log-container {
+    padding: 15px 15px 140px 15px; 
+  }
   .catch-log-form {
     gap: 10px;
     max-width: 100%;
@@ -202,7 +278,6 @@
 
   .catch-input,
   .file-input {
-    margin-left: 0;
     width: 100%;
   }
 
@@ -232,12 +307,19 @@
 
   .map-modal-content {
     width: 95%;
-    padding: 10px;
+    padding: 15px;
+    min-height: 400px;
+  }
+  
+  .map-modal-content .leaflet-container {
+    height: 300px !important;
   }
 
   .map-modal-close {
     font-size: 24px;
     width: 32px;
     height: 32px;
+    top: 8px;
+    right: 12px;
   }
 }

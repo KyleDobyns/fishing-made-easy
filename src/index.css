@@ -1,12 +1,57 @@
+/* Define color variables for dark mode (default) */
+:root {
+  --background-color: #000;
+  --surface-color: #2a2a2a;
+  --primary-text-color: #fff;
+  --secondary-text-color: #ccc;
+  --accent-color: #ff8c00; 
+  --accent-hover: #ff6600; 
+  --border-color: #fff;
+  --input-bg: #222;
+  --input-text: #fff;
+  --input-border: #fff;
+  --card-bg: #222;
+  --error-color: #ff4444;
+  --link-color: #ff8c00; 
+  --link-hover: #ffaa33;
+  --chart-text-color: #fff;
+  --chart-grid-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Light mode overrides */
+.light-mode {
+  --background-color: #f7f7f7;
+  --surface-color: #fff;
+  --primary-text-color: #222;
+  --secondary-text-color: #555;
+  --accent-color: #0074d9;
+  --accent-hover: #005fa3;
+  --border-color: #222;
+  --input-bg: #fff;
+  --input-text: #222;
+  --input-border: #222;
+  --card-bg: #f1f1f1;
+  --error-color: #d7263d;
+  --link-color: #0074d9;
+  --link-hover: #005fa3;
+  --chart-text-color: #222;
+  --chart-grid-color: rgba(0, 0, 0, 0.1);
+}
+
 body {
-  background-color: black;
-  color: white;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 0;
   padding: 0;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto; 
+  -webkit-overflow-scrolling: touch; 
+  height: auto;
+  min-height: 100vh;
 }
 
 .map-container {
@@ -15,10 +60,44 @@ body {
   align-items: center;
   width: 100%;
   max-width: 100%;
-  height: 300px;
-  border-radius: 10px;
+  height: 400px;
+  border-radius: 12px;
   overflow: hidden;
   margin: 0 auto;
+  background: var(--surface-color);
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  padding: 0; /* Remove any padding */
+}
+
+.leaflet-control-zoom {
+  margin: 10px !important;
+  border-radius: 6px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
+  border: none !important;
+  background-color: var(--surface-color) !important;
+  color: var(--primary-text-color) !important;
+  font-weight: bold !important;
+  transition: background-color 0.3s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: var(--accent-color) !important;
+  color: var(--primary-text-color) !important;
+}
+
+.leaflet-container {
+  border-radius: 12px;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .custom-dot {
@@ -26,9 +105,37 @@ body {
   padding: 0 !important;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-text-color);
+}
+
+p {
+  color: var(--primary-text-color);
+}
+
+/* Error message styling */
+.error-message {
+  color: var(--error-color) !important;
+}
+
+/* Link styling */
+a {
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
 @media (max-width: 600px) {
   .map-container {
-    height: 200px;
+    height: 300px;
     max-width: none;
+    border-radius: 10px;
+    margin: 10px auto;
+  }
+  
+  .leaflet-control-zoom {
+    margin: 8px !important;
   }
 }

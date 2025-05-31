@@ -1,16 +1,16 @@
 .auth-container {
   padding: 20px;
   text-align: center;
-  background-color: black;
-  color: white;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
   width: 100%;
   box-sizing: border-box;
-  position: relative; /* Establish stacking context */
-  z-index: 10; /* Ensure Auth is above other homepage elements */
+  position: relative;
+  z-index: 10;
 }
 
 .auth-container h2 {
-  color: red;
+  color: var(--accent-color);
   margin-bottom: 20px;
 }
 
@@ -20,32 +20,32 @@
   padding: 8px;
   margin: 10px 0;
   border-radius: 5px;
-  border: 1px solid white !important; /* Ensure border is applied */
-  background-color: #222 !important; /* Ensure dark background */
-  color: white !important; /* Ensure white text */
-  pointer-events: auto; /* Ensure inputs are clickable */
-  z-index: 11; /* Above the container */
+  border: 1px solid var(--input-border) !important;
+  background-color: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  pointer-events: auto;
+  z-index: 11;
   box-sizing: border-box;
-  outline: none; /* Remove browser default outline */
-  -webkit-appearance: none; /* Remove browser default styling */
+  outline: none;
+  -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 }
 
 .auth-container .auth-input:focus {
-  border-color: red; /* Highlight on focus */
-  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Subtle glow on focus */
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 
 .auth-container p {
-  color: red;
+  color: var(--error-color);
   margin: 10px 0;
 }
 
 .auth-button {
   padding: 10px 20px;
-  background-color: red;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--primary-text-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -54,7 +54,7 @@
 }
 
 .auth-button:hover {
-  background-color: darkred;
+  background-color: var(--accent-hover);
 }
 
 .auth-button-secondary {
@@ -65,7 +65,6 @@
   background-color: #777;
 }
 
-/* Mobile Adjustments */
 @media (max-width: 600px) {
   .auth-container .auth-input {
     max-width: 100%;

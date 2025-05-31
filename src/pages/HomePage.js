@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Auth from '../components/Auth';
 import { supabase } from '../supabase';
 import useWeather from '../hooks/useWeather';
-import './HomePage.css';
+import '../styles/HomePage.css';
 
-const HomePage = () => {
+const HomePage = ({ lightMode, setLightMode }) => {
   const [user, setUser] = useState(null);
   const [catches, setCatches] = useState([]);
   const { weather, locationName, error: weatherError } = useWeather();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -39,8 +40,12 @@ const HomePage = () => {
           console.error('Error fetching catches:', error);
         } else {
           setCatches(data.map(catchItem => ({
+            id: catchItem.id,
             description: `${catchItem.fish_type} - ${catchItem.length}" (${catchItem.date})`,
             image: catchItem.image_url,
+            fish_type: catchItem.fish_type,
+            length: catchItem.length,
+            date: catchItem.date,
           })));
         }
       };
@@ -50,8 +55,23 @@ const HomePage = () => {
     }
   }, [user]);
 
+  const handleCatchClick = (catchId) => {
+    // Navigate to catch log with the specific catch ID as a URL parameter
+    navigate(`/catch-log?highlight=${catchId}`);
+  };
+
   return (
     <div className="homepage">
+      {/* Theme toggle button - only on homepage */}
+      <button
+        className="theme-toggle-homepage"
+        onClick={() => setLightMode((m) => !m)}
+        aria-label="Toggle light/dark mode"
+        title={lightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}
+      >
+        {lightMode ? "🌙" : "☀️"}
+      </button>
+
       <Auth setUser={setUser} user={user} />
       <div className="weather-section">
         {weatherError ? (
@@ -82,11 +102,25 @@ const HomePage = () => {
       <div className="recent-catches">
         {catches.length > 0 ? (
           catches.map((catchItem, index) => (
-            <div key={index} className="catch">
+            <div 
+              key={index} 
+              className="catch clickable-catch" 
+              onClick={() => handleCatchClick(catchItem.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleCatchClick(catchItem.id);
+                }
+              }}
+              title="Click to view in Catch Log"
+            >
               <div>{catchItem.description}</div>
               {catchItem.image && (
                 <img src={catchItem.image} alt={catchItem.description} style={{ maxWidth: '100%', maxHeight: '150px', marginTop: '5px' }} />
               )}
+              <div className="click-hint">📋 Click to view details</div>
             </div>
           ))
         ) : (

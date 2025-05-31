@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
@@ -13,7 +13,7 @@ import {
 } from "chart.js";
 import MapView from "../components/MapView";
 import { supabase, supabaseAnonKey } from "../supabase";
-import "./Tides.css";
+import "../styles/Tides.css";
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -26,6 +26,36 @@ const Tides = () => {
   const [error, setError] = useState("");
   const [timeFrame, setTimeFrame] = useState("7days");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+  const [themeKey, setThemeKey] = useState(0); // Force chart re-render
+  const chartRef = useRef(null);
+
+  // Function to get current theme colors
+  const getThemeColors = () => {
+    const isLightMode = document.body.classList.contains('light-mode');
+    return {
+      textColor: isLightMode ? '#222222' : '#ffffff',
+      gridColor: isLightMode ? 'rgba(34, 34, 34, 0.2)' : 'rgba(255, 255, 255, 0.2)',
+      lineColor: isLightMode ? '#0074d9' : '#ff8c00' // Orange for dark mode (colorblind friendly)
+    };
+  };
+
+  // Watch for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          setThemeKey(prev => prev + 1); // Force chart re-render
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Fetch tide stations on mount
   useEffect(() => {
@@ -51,31 +81,7 @@ const Tides = () => {
     // eslint-disable-next-line
   }, [selectedStation, timeFrame, selectedDate]);
 
-  const getUserLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setPosition([latitude, longitude]);
-          // fetchTidesForStation will be called by the useEffect above
-        },
-        (err) => {
-          setError("Unable to get your location. Using default location instead.");
-          setPosition([47.6025, -122.3340]);
-          // fetchTidesForStation will be called by the useEffect above
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by your browser. Using default location.");
-      setPosition([47.6025, -122.3340]);
-      // fetchTidesForStation will be called by the useEffect above
-    }
-  };
+
 
   const fetchTidesForStation = async (stationId, timeFrame, date) => {
     console.log("Fetching tides for station:", stationId, "timeFrame:", timeFrame, "date:", date);
@@ -95,15 +101,14 @@ const Tides = () => {
     console.log("Start date:", startDate, "End date:", endDate);
 
     try {
-      // Add a timeout to the fetch request
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch('https://vboqzuiqihrdchlvooku.supabase.co/functions/v1/swift-endpoint', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseAnonKey}`, // Use the imported supabaseAnonKey
+          'Authorization': `Bearer ${supabaseAnonKey}`,
         },
         body: JSON.stringify({ stationId, startDate, endDate }),
         signal: controller.signal,
@@ -146,8 +151,10 @@ const Tides = () => {
   if (error) return <p className="error-message">{error}</p>;
   if (!tides) return <p>Loading tide data...</p>;
 
+  const themeColors = getThemeColors();
   const labels = tides.map((tide) => new Date(tide.t).toLocaleString());
   const dataValues = tides.map((tide) => parseFloat(tide.v));
+  
   const chartData = {
     labels,
     datasets: [
@@ -155,7 +162,7 @@ const Tides = () => {
         label: "Tide Height (ft)",
         data: dataValues,
         fill: false,
-        borderColor: "red",
+        borderColor: themeColors.lineColor,
         tension: 0.1,
       },
     ],
@@ -170,41 +177,41 @@ const Tides = () => {
         title: {
           display: true,
           text: "Tide Height (ft)",
-          color: "white",
+          color: themeColors.textColor,
         },
         ticks: {
-          color: "white",
+          color: themeColors.textColor,
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.1)",
+          color: themeColors.gridColor,
         },
       },
       x: {
         title: {
           display: true,
           text: "Time",
-          color: "white",
+          color: themeColors.textColor,
         },
         ticks: {
-          color: "white",
+          color: themeColors.textColor,
           maxRotation: 45,
           minRotation: 45,
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.1)",
+          color: themeColors.gridColor,
         },
       },
     },
     plugins: {
       legend: {
         labels: {
-          color: "white",
+          color: themeColors.textColor,
         },
       },
       title: {
         display: true,
         text: `Tide Predictions for ${stations.find((s) => s.id === selectedStation)?.name} (${timeFrame === "7days" ? "7 Days" : "1 Day"} on ${selectedDate})`,
-        color: "white",
+        color: themeColors.textColor,
         font: {
           size: 16,
         },
@@ -215,9 +222,6 @@ const Tides = () => {
   return (
     <div className="tides-container">
       <h1 className="tides-title">Tide Information</h1>
-      <button onClick={getUserLocation} className="location-button">
-        Use My Location
-      </button>
       <MapView
         position={position || [47.6025, -122.3340]}
         stations={stations}
@@ -265,7 +269,7 @@ const Tides = () => {
       </div>
       <p>Showing tides for {stations.find((s) => s.id === selectedStation)?.name}.</p>
       <div className="tide-chart" style={{ marginTop: "20px", maxWidth: "100%", height: "300px" }}>
-        <Line data={chartData} options={chartOptions} />
+        <Line key={themeKey} data={chartData} options={chartOptions} ref={chartRef} />
       </div>
       <Link to="/" className="back-link">
         Back to Home

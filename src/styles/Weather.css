@@ -1,0 +1,212 @@
+.weather-container {
+  background-color: var(--surface-color);
+  color: var(--primary-text-color);
+  padding: 20px 20px 100px 20px; 
+  border-radius: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+  transition: background 0.3s ease;
+  box-sizing: border-box;
+  min-height: 100vh;
+  height: auto; 
+  overflow-y: visible;
+}
+
+/* Weather background themes - these override the surface color */
+.weather-container.rainy {
+  background: linear-gradient(135deg, #4a6a8a, #2e4457);
+  color: #fff; /* Force white text on dark background */
+}
+
+.weather-container.cloudy {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: #fff; /* Force white text on dark background */
+}
+
+.weather-container.snowy {
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  color: #222; /* Force dark text on light background */
+}
+
+.weather-container.sunny {
+  background: linear-gradient(135deg, #facc15, #f97316);
+  color: #222; /* Force dark text on bright background */
+}
+
+.weather-container.default-weather {
+  background: linear-gradient(135deg, #1f2937, #111827);
+  color: #fff; /* Force white text on dark background */
+}
+
+/* Light mode weather backgrounds */
+.light-mode .weather-container.rainy {
+  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  color: #222;
+}
+
+.light-mode .weather-container.cloudy {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+  color: #222;
+}
+
+.light-mode .weather-container.default-weather {
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  color: #222;
+}
+
+.weather-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: var(--accent-color);
+}
+
+/* Override title color for themed backgrounds */
+.weather-container.rainy .weather-title,
+.weather-container.cloudy .weather-title,
+.weather-container.snowy .weather-title,
+.weather-container.sunny .weather-title,
+.weather-container.default-weather .weather-title {
+  color: inherit;
+}
+
+.forecast {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Light mode forecast background */
+.light-mode .forecast {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.forecast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.forecast-item {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  color: inherit;
+}
+
+/* Light mode forecast items */
+.light-mode .forecast-item {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.forecast-item p {
+  margin: 5px 0;
+  color: inherit;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.search-container input {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  width: 60%;
+  max-width: 120px;
+  box-sizing: border-box;
+}
+
+.search-container button {
+  padding: 8px 12px;
+  background-color: var(--accent-color);
+  color: var(--primary-text-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 30%;
+  max-width: 70px;
+  box-sizing: border-box;
+}
+
+.search-container button:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Style for the Use My Location button */
+.weather-container > button {
+  padding: 8px 16px;
+  background-color: var(--accent-color);
+  color: var(--primary-text-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 80%;
+  max-width: 180px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.weather-container > button:hover {
+  background-color: var(--accent-hover);
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+.error-message {
+  text-align: center;
+  color: var(--error-color);
+  font-size: 1.1rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .weather-container {
+    padding: 15px 15px 120px 15px; 
+  }
+
+  .weather-title {
+    font-size: 1.3rem;
+  }
+
+  .forecast-item p {
+    font-size: 0.9rem;
+  }
+
+  .search-container input {
+    width: 55%;
+    max-width: 100px;
+  }
+
+  .search-container button {
+    width: 25%;
+    max-width: 60px;
+  }
+}

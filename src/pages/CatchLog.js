@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase, supabaseAnonKey } from '../supabase';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import './CatchLog.css';
+import '../styles/CatchLog.css';
 /* eslint-disable react-hooks/exhaustive-deps */
 
 // Custom icon for user location (red dot, matching MapView.js)
@@ -42,6 +42,10 @@ const CatchLog = () => {
   const [weatherError, setWeatherError] = useState('');
   const [showMapModal, setShowMapModal] = useState(false);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+  const [highlightedCatch, setHighlightedCatch] = useState(null);
+  
+  // Get URL search parameters to check for highlighted catch
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Fetch the authenticated user
   useEffect(() => {
@@ -51,6 +55,19 @@ const CatchLog = () => {
     };
     fetchUser();
   }, []);
+
+  // Check for highlighted catch from URL parameters
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (highlightId) {
+      setHighlightedCatch(highlightId);
+      // Clear the URL parameter after 5 seconds
+      setTimeout(() => {
+        setHighlightedCatch(null);
+        setSearchParams({}); // Clear the URL parameter
+      }, 5000);
+    }
+  }, [searchParams, setSearchParams]);
 
   // Fetch catches from Supabase
   useEffect(() => {
@@ -213,7 +230,7 @@ const CatchLog = () => {
       const data = await response.json();
       setWeather(data.current_weather_description);
       
-      // Fetch precise location name using reverse geocoding
+      // Fetch  location name using reverse geocoding
       const preciseLocationName = await fetchLocationName(lat, lon);
       setLocationName(preciseLocationName);
       setWeatherError('');
@@ -224,7 +241,7 @@ const CatchLog = () => {
       setLocationName('');
       return "Unknown Location";
     }
-  }, []); // Empty dependency array since fetchWeather doesn't depend on any changing values
+  }, []); 
 
   useEffect(() => {
     if (!position) return;
@@ -266,7 +283,7 @@ const CatchLog = () => {
       return;
     }
 
-    // Ensure locationName is up-to-date by fetching weather and location again
+  
     let finalLocationName = locationName;
     if (!locationName || locationName === "Unknown Location" || locationName === "User Location" || locationName === "") {
       if (position && position[0] && position[1]) {
@@ -472,7 +489,15 @@ const CatchLog = () => {
                   Clear All Catches
                 </button>
                 {catches.map((catchItem, index) => (
-                  <div key={index} className="catch-item">
+                  <div 
+                    key={index} 
+                    className={`catch-item ${highlightedCatch === catchItem.id ? 'highlighted-catch' : ''}`}
+                  >
+                    {highlightedCatch === catchItem.id && (
+                      <div className="highlight-banner">
+                        🎣 This catch was selected from the homepage!
+                      </div>
+                    )}
                     <div>{catchItem.description}</div>
                     <div className="catch-details">
                       <span>Weather: {catchItem.weather}</span>
@@ -511,15 +536,22 @@ const CatchLog = () => {
       </Link>
 
       {showMapModal && selectedCoordinates && (
-        <div className="map-modal">
-          <div className="map-modal-content">
-            <span className="map-modal-close" onClick={closeMapModal}>×</span>
+        <div className="map-modal" onClick={closeMapModal}>
+          <div className="map-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="map-modal-close" onClick={closeMapModal}>×</button>
+            <h3 style={{ color: 'var(--primary-text-color)', marginBottom: '10px', textAlign: 'center' }}>
+              Catch Location: {selectedCoordinates.location}
+            </h3>
             <MapContainer
               center={[selectedCoordinates.lat, selectedCoordinates.lon]}
-              zoom={12}
-              style={{ width: '100%', height: '400px' }}
+              zoom={14}
+              style={{ width: '100%', height: '400px', borderRadius: '8px' }}
+              key={`${selectedCoordinates.lat}-${selectedCoordinates.lon}`}
             >
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <TileLayer 
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
               <Marker
                 position={[selectedCoordinates.lat, selectedCoordinates.lon]}
                 icon={smallDotIcon}

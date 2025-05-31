@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../supabase';
-import "./Auth.css";
+import "../styles/Auth.css";
 
 const Auth = ({ setUser, user }) => {
   const [email, setEmail] = useState('');

@@ -1,0 +1,482 @@
+/* Weather Information Section */
+.weather-info {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.weather-info h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--primary-text-color);
+  font-size: 1.2rem;
+}
+
+.weather-summary {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.weather-summary span {
+  background: var(--secondary-background);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: var(--primary-text-color);
+  font-size: 0.9rem;
+}
+
+.weather-error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #ff6b6b;
+}
+
+/* Species Selection */
+.species-selection {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.species-selection h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--primary-text-color);
+  font-size: 1.2rem;
+}
+
+.species-dropdown {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 16px;
+  border: 2px solid #555;
+  border-radius: 8px;
+  background: #2a2a2a;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23ffffff' d='M2 0L0 2h4zM2 5L0 3h4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.species-dropdown:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}
+
+.species-dropdown option {
+  background: #2a2a2a;
+  color: #ffffff;
+  padding: 8px;
+  border: none;
+}
+
+/* Light mode specific overrides */
+body.light-mode .species-dropdown {
+  background: #ffffff !important;
+  color: #222222 !important;
+  border: 2px solid #ddd !important;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zM2 5L0 3h4z'/></svg>") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 12px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: none !important;
+}
+
+body.light-mode .species-dropdown option {
+  background: #ffffff !important;
+  color: #222222 !important;
+  border: none !important;
+  padding: 8px !important;
+  background-image: none !important;
+}
+
+body.light-mode .species-dropdown:focus {
+  border-color: #4a90e2 !important;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) !important;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zM2 5L0 3h4z'/></svg>") !important;
+}
+
+/* Additional light mode dropdown fixes */
+body.light-mode .species-selection {
+  background: #ffffff !important;
+  color: #222222 !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+body.light-mode .species-selection h2 {
+  color: #222222 !important;
+}
+
+
+body.light-mode .species-selection::before,
+body.light-mode .species-selection::after,
+body.light-mode .species-dropdown::before,
+body.light-mode .species-dropdown::after {
+  display: none !important;
+}
+
+
+body.light-mode .species-selection * {
+  background-image: none !important;
+}
+
+/* Enhanced Recommended Setup */
+.recommended-setup {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recommended-setup h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--primary-text-color);
+  font-size: 1.3rem;
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 10px;
+}
+
+.setup-details {
+  display: grid;
+  gap: 20px;
+}
+
+.setup-details p {
+  margin: 0;
+  padding: 15px;
+  background: var(--secondary-background);
+  border-radius: 8px;
+  border-left: 4px solid var(--accent-color);
+}
+
+.setup-details strong {
+  display: block;
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+/* Weather Recommendations */
+.weather-recommendations {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  border: 1px solid var(--border-color);
+}
+
+.weather-recommendations h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--primary-text-color);
+  font-size: 1.3rem;
+  border-bottom: 2px solid #4a90e2;
+  padding-bottom: 10px;
+}
+
+.weather-tips {
+  display: grid;
+  gap: 15px;
+}
+
+.weather-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background: var(--secondary-background);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.weather-tip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.weather-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.weather-tip-content {
+  flex: 1;
+}
+
+.weather-tip-content strong {
+  display: block;
+  color: var(--primary-text-color);
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.weather-tip-content p {
+  margin: 0;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Enhanced Learn More Section */
+.learn-more {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  border: 1px solid var(--border-color);
+}
+
+.learn-more h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--primary-text-color);
+  font-size: 1.3rem;
+}
+
+.educational-section {
+  margin-bottom: 25px;
+}
+
+.educational-section h3 {
+  margin: 0 0 15px 0;
+  color: var(--primary-text-color);
+  font-size: 1.1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.educational-item {
+  margin-bottom: 15px;
+  background: var(--secondary-background);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.educational-item:hover {
+  background: var(--hover-background);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.learn-more-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: var(--secondary-background);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
+}
+
+.learn-more-item:hover {
+  background: var(--hover-background);
+}
+
+.learn-more-item:last-child {
+  margin-bottom: 0;
+}
+
+.learn-more-text h3, .learn-more-text h4 {
+  margin: 0 0 5px 0;
+  color: var(--primary-text-color);
+  font-size: 1.1rem;
+}
+
+.learn-more-text p {
+  margin: 0;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.content-meta {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.play-button, .guide-button {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.play-button:hover, .guide-button:hover {
+  background: var(--accent-hover-color);
+  transform: scale(1.1);
+}
+
+.play-button:disabled, .guide-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.weather-learning-tip {
+  background: linear-gradient(135deg, var(--accent-color), #5ba3f5);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.weather-learning-tip h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+}
+
+.weather-learning-tip p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .weather-summary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .weather-summary span {
+    text-align: center;
+  }
+  
+  .species-dropdown {
+    max-width: 100%;
+  }
+  
+  .weather-tip {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .weather-icon {
+    align-self: center;
+  }
+  
+  .learn-more-item {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  /* Mobile back link fixes */
+  .back-link {
+    margin: 30px 15px 30px 15px;
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    width: calc(100% - 30px);
+    max-width: 300px;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  
+  /*proper spacing for mobile */
+  .gear-guide-container {
+    padding-bottom: 80px;
+  }
+}
+
+/* Loading States */
+.loading-placeholder {
+  background: var(--secondary-background);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: var(--secondary-text-color);
+}
+
+/* Error States */
+.error-message {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #ff6b6b;
+  margin-bottom: 20px;
+}
+
+/* Enhanced Back Link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #2a2a2a;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 2px solid #555;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  margin: 30px auto 20px auto;
+  width: fit-content;
+  min-height: 44px; /* Minimum touch target for mobile */
+}
+
+.back-link:hover {
+  background: #4a90e2;
+  color: white;
+  border-color: #4a90e2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.back-link::before {
+  content: "←";
+  font-size: 1.2rem;
+}
+
+/* Light mode back link */
+body.light-mode .back-link {
+  background: #ffffff !important;
+  color: #222222 !important;
+  border-color: #ddd !important;
+}
+
+body.light-mode .back-link:hover {
+  background: #4a90e2 !important;
+  color: white !important;
+  border-color: #4a90e2 !important;
+}
