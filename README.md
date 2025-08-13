@@ -1,4 +1,6 @@
-e web application that simplifies fishing for anglers of all skill levels by providing personalized gear recommendations, weather-based insights, and private catch logging.
+# 🎣 Fishing Made Easy
+
+A comprehensive web application that simplifies fishing for anglers of all skill levels by providing personalized gear recommendations, weather-based insights, and private catch logging.
 
 **Live Demo**: [https://fishing-made-easy.vercel.app/](https://fishing-made-easy.vercel.app/)
 
