@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+e web application that simplifies fishing for anglers of all skill levels by providing personalized gear recommendations, weather-based insights, and private catch logging.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Live Demo**: [https://fishing-made-easy.vercel.app/](https://fishing-made-easy.vercel.app/)
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### Smart Gear Recommendations
+- **Personalized suggestions** based on weather conditions, location, and target species
+- **Beginner-friendly** guidance that demystifies rod selection (length, power, action)
+- **Real-time adaptation** to current fishing conditions
 
-### `npm start`
+### Private Catch Logging
+- **Secure, personal database** for tracking your fishing success
+- **Accurate location tracking** - no more predetermined locations miles from your actual catch
+- **Pattern recognition** to help identify your most successful techniques
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Unified Weather & Tide Information
+- **All-in-one dashboard** combining weather, tides, and fish activity
+- **No more app switching** - everything you need in one place
+- **Real-time updates** for optimal fishing conditions
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Location-Based Insights
+- **Local fishing spots** with community-verified information
+- **Species-specific recommendations** for your area
+- **Tide charts and patterns** for your exact location
 
-### `npm test`
+## Why Fishing Made Easy?
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Research shows that anglers using apps have a **40% higher success rate**, but most anglers waste time switching between 3-5 different apps for weather, tides, and fishing information. We've consolidated everything into one intuitive platform.
 
-### `npm run build`
+### Problems We Solve:
+- ❌ **App Fragmentation**: No more juggling multiple apps
+- ❌ **Gear Confusion**: Clear guidance for beginners overwhelmed by equipment choices
+- ❌ **Inaccurate Logging**: Precise location tracking, not predetermined spots
+- ❌ **Scattered Information**: All conditions data in one unified view
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Tech Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Frontend**: Next.js, React
+- **Backend**: PostgreSQL & Supabase
+- **Styling**: CSS
+- **Deployment**: Vercel
+- **APIs**: Weather API, Tide API, Location Services
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Getting Started
 
-### `npm run eject`
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Installation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/fishing-made-easy.git
+cd fishing-made-easy
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+3. Set up environment variables
+```bash
+cp .env.example .env.local
+```
 
-## Learn More
+4. Add your API keys to `.env.local`:
+```
+NEXT_PUBLIC_WEATHER_API_KEY=your_weather_api_key
+NEXT_PUBLIC_TIDE_API_KEY=your_tide_api_key
+NEXT_PUBLIC_MAPS_API_KEY=your_maps_api_key
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+5. Run the development server
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-### Code Splitting
+## Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1. **Create an Account**: Sign up to access personalized features
+2. **Set Your Location**: Enable location services or manually select your fishing area
+3. **Get Recommendations**: View gear suggestions based on current conditions
+4. **Log Your Catches**: Track your success with accurate location data
+5. **Plan Your Trip**: Check unified weather and tide information
 
-### Analyzing the Bundle Size
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
